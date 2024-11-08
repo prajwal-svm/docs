@@ -1,0 +1,302 @@
+---
+title: 'Static vs Dynamic Arrays'
+description: 'Understanding the differences between static and dynamic arrays and their use cases'
+---
+
+<Note>
+  The choice between static and dynamic arrays significantly impacts your application's performance and memory usage. Understanding these differences is crucial for system design and optimization.
+</Note>
+
+## Overview
+
+<CardGroup cols={2}>
+  <Card title="Static Arrays" icon="lock">
+    Fixed-size arrays allocated at compile time with unchangeable length.
+  </Card>
+  <Card title="Dynamic Arrays" icon="arrows-up-down-left-right">
+    Resizable arrays that can grow or shrink during runtime.
+  </Card>
+</CardGroup>
+
+## Memory Allocation
+
+### Static Arrays
+Memory is allocated during compile time and cannot be changed during runtime.
+
+<CodeGroup>
+```c C
+// Static array with fixed size
+int staticArray[5] = {1, 2, 3, 4, 5};
+
+// Cannot be resized
+// staticArray[5] = 6; // Error: Index out of bounds
+```
+
+```java Java
+// Static array in Java
+int[] staticArray = new int[5];
+// Size cannot be changed after initialization
+```
+
+```cpp C++
+// Static array in C++
+int staticArray[5] = {1, 2, 3, 4, 5};
+// Size is fixed at compile time
+```
+</CodeGroup>
+
+### Dynamic Arrays
+Memory is allocated at runtime and can be modified.
+
+<CodeGroup>
+```python Python
+# Dynamic array (list in Python)
+dynamic_array = []
+dynamic_array.append(1)  # Automatically grows
+```
+
+```javascript JavaScript
+// Dynamic array (Array in JavaScript)
+let dynamicArray = [];
+dynamicArray.push(1);  // Automatically grows
+```
+
+```java Java
+// Dynamic array (ArrayList in Java)
+ArrayList<Integer> dynamicArray = new ArrayList<>();
+dynamicArray.add(1);  // Automatically grows
+```
+</CodeGroup>
+
+## Implementation
+
+### Static Array Implementation
+```python
+class StaticArray:
+    def __init__(self, size):
+        self.size = size
+        self.array = [None] * size
+        
+    def insert(self, index, value):
+        if index >= self.size:
+            raise IndexError("Array index out of bound")
+        self.array[index] = value
+        
+    def get(self, index):
+        if index >= self.size:
+            raise IndexError("Array index out of bound")
+        return self.array[index]
+```
+
+### Dynamic Array Implementation
+```python
+class DynamicArray:
+    def __init__(self):
+        self.size = 0
+        self.capacity = 1
+        self.array = [None] * self.capacity
+        
+    def append(self, value):
+        if self.size == self.capacity:
+            self._resize(2 * self.capacity)
+        
+        self.array[self.size] = value
+        self.size += 1
+        
+    def _resize(self, new_capacity):
+        # Create new array with double capacity
+        new_array = [None] * new_capacity
+        
+        # Copy elements to new array
+        for i in range(self.size):
+            new_array[i] = self.array[i]
+            
+        self.array = new_array
+        self.capacity = new_capacity
+```
+
+## Key Differences
+
+<AccordionGroup>
+  <Accordion title="Memory Allocation">
+    **Static Arrays**
+    - Fixed memory allocation at compile time
+    - Memory size cannot be changed
+    - More memory efficient when size is known
+    
+    **Dynamic Arrays**
+    - Flexible memory allocation at runtime
+    - Can grow or shrink as needed
+    - May use extra memory for growth capacity
+  </Accordion>
+  
+  <Accordion title="Performance">
+    **Static Arrays**
+    - Constant time access: O(1)
+    - No resizing overhead
+    - Better cache performance
+    
+    **Dynamic Arrays**
+    - Constant amortized time for append: O(1)
+    - Occasional resizing cost: O(n)
+    - May have memory overhead
+  </Accordion>
+  
+  <Accordion title="Use Cases">
+    **Static Arrays**
+    - Fixed-size data structures
+    - Performance-critical applications
+    - Embedded systems
+    
+    **Dynamic Arrays**
+    - Unknown size at compile time
+    - Frequently changing data
+    - Most general-purpose applications
+  </Accordion>
+</AccordionGroup>
+
+## Memory Growth
+
+### How Dynamic Arrays Grow
+
+<Frame>
+  <img src="/api/placeholder/600/300" alt="Dynamic Array Growth"/>
+</Frame>
+
+<Steps>
+  1. Initial array is created with capacity 1
+  2. When array is full, new array is created with double capacity
+  3. Elements are copied to new array
+  4. Old array is garbage collected
+  5. Process repeats when new array is full
+</Steps>
+
+## Time Complexity Comparison
+
+<CardGroup cols={2}>
+  <Card title="Static Array Operations" icon="stopwatch">
+    - Access: O(1)
+    - Insert: O(1)
+    - Delete: O(1)
+    - Search: O(n)
+  </Card>
+  
+  <Card title="Dynamic Array Operations" icon="stopwatch">
+    - Access: O(1)
+    - Append: O(1) amortized
+    - Insert: O(n)
+    - Delete: O(n)
+    - Search: O(n)
+    - Resize: O(n)
+  </Card>
+</CardGroup>
+
+## Memory Usage
+
+<CodeGroup>
+
+```python Python
+# Static Array
+static_size = 1000
+static_array = [0] * static_size  # Fixed memory allocation
+
+# Dynamic Array
+dynamic_array = []
+for i in range(1000):
+    dynamic_array.append(i)  # Grows as needed
+```
+
+```java Java
+// Static Array
+int[] staticArray = new int[1000];  // Fixed memory
+
+// Dynamic Array
+ArrayList<Integer> dynamicArray = new ArrayList<>();
+for (int i = 0; i < 1000; i++) {
+    dynamicArray.add(i);  // Grows automatically
+}
+```
+
+</CodeGroup>
+
+## Best Practices
+
+### When to Use Static Arrays
+
+<Check>Known, fixed size at compile time</Check>
+<Check>Performance-critical applications</Check>
+<Check>Memory-constrained environments</Check>
+<Check>Simple data storage without modification</Check>
+
+### When to Use Dynamic Arrays
+
+<Check>Unknown size at runtime</Check>
+<Check>Frequently changing data</Check>
+<Check>Need for flexibility in size</Check>
+<Check>General-purpose applications</Check>
+
+## Common Pitfalls
+
+<Warning>
+  **Static Arrays**
+  - Buffer overflow
+  - Wasted memory if size overestimated
+  - Inflexibility in size
+</Warning>
+
+<Warning>
+  **Dynamic Arrays**
+  - Performance cost during resizing
+  - Memory fragmentation
+  - Unnecessary capacity allocation
+</Warning>
+
+## Real-World Examples
+
+<CardGroup cols={2}>
+  <Card title="Static Array Use Cases" icon="building">
+    - Image processing (fixed-size frames)
+    - Audio buffers
+    - Network packets
+    - Matrix operations
+  </Card>
+  
+  <Card title="Dynamic Array Use Cases" icon="building">
+    - To-do lists
+    - Shopping carts
+    - User input collection
+    - Event logs
+  </Card>
+</CardGroup>
+
+## Performance Optimization Tips
+
+### Static Arrays
+```python
+# Pre-allocate when size is known
+def process_fixed_data(size):
+    arr = [0] * size  # Better than growing dynamically
+    for i in range(size):
+        arr[i] = process_data(i)
+    return arr
+```
+
+### Dynamic Arrays
+```python
+# Reserve capacity for known growth
+def collect_dynamic_data():
+    arr = []
+    arr.extend([0] * 1000)  # Pre-allocate if approximate size known
+    # Fill array...
+    return arr
+```
+
+## Next Steps
+
+<Card title="Continue Learning" icon="book">
+  Explore these related topics:
+  - Array Sorting Algorithms
+  - Memory Management
+  - Data Structure Selection
+  - Performance Optimization
+</Card>

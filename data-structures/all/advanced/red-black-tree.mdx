@@ -1,0 +1,449 @@
+# Red-Black Trees: Implementation Guide
+
+## Core Implementation
+
+### Basic Red-Black Tree
+```python
+class Color:
+    RED = True
+    BLACK = False
+
+class RBNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.parent = None
+        self.color = Color.RED
+        self.size = 1  # For order statistics
+
+class RedBlackTree:
+    def __init__(self):
+        self.NIL = RBNode(None)
+        self.NIL.color = Color.BLACK
+        self.root = self.NIL
+    
+    def left_rotate(self, x):
+        y = x.right
+        x.right = y.left
+        if y.left != self.NIL:
+            y.left.parent = x
+        y.parent = x.parent
+        if x.parent == self.NIL:  # x is root
+            self.root = y
+        elif x == x.parent.left:  # x is left child
+            x.parent.left = y
+        else:  # x is right child
+            x.parent.right = y
+        y.left = x
+        x.parent = y
+        # Update sizes
+        y.size = x.size
+        x.size = x.left.size + x.right.size + 1
+    
+    def right_rotate(self, y):
+        x = y.left
+        y.left = x.right
+        if x.right != self.NIL:
+            x.right.parent = y
+        x.parent = y.parent
+        if y.parent == self.NIL:  # y is root
+            self.root = x
+        elif y == y.parent.right:  # y is right child
+            y.parent.right = x
+        else:  # y is left child
+            y.parent.left = x
+        x.right = y
+        y.parent = x
+        # Update sizes
+        x.size = y.size
+        y.size = y.left.size + y.right.size + 1
+    
+    def insert(self, val):
+        node = RBNode(val)
+        node.left = self.NIL
+        node.right = self.NIL
+        
+        y = self.NIL
+        x = self.root
+        
+        while x != self.NIL:
+            y = x
+            x.size += 1  # Update size while traversing
+            if node.val < x.val:
+                x = x.left
+            else:
+                x = x.right
+        
+        node.parent = y
+        if y == self.NIL:
+            self.root = node
+        elif node.val < y.val:
+            y.left = node
+        else:
+            y.right = node
+        
+        self._fix_insert(node)
+    
+    def _fix_insert(self, k):
+        while k.parent.color == Color.RED:
+            if k.parent == k.parent.parent.right:
+                u = k.parent.parent.left
+                if u.color == Color.RED:
+                    u.color = Color.BLACK
+                    k.parent.color = Color.BLACK
+                    k.parent.parent.color = Color.RED
+                    k = k.parent.parent
+                else:
+                    if k == k.parent.left:
+                        k = k.parent
+                        self.right_rotate(k)
+                    k.parent.color = Color.BLACK
+                    k.parent.parent.color = Color.RED
+                    self.left_rotate(k.parent.parent)
+            else:
+                u = k.parent.parent.right
+                if u.color == Color.RED:
+                    u.color = Color.BLACK
+                    k.parent.color = Color.BLACK
+                    k.parent.parent.color = Color.RED
+                    k = k.parent.parent
+                else:
+                    if k == k.parent.right:
+                        k = k.parent
+                        self.left_rotate(k)
+                    k.parent.color = Color.BLACK
+                    k.parent.parent.color = Color.RED
+                    self.right_rotate(k.parent.parent)
+            if k == self.root:
+                break
+        self.root.color = Color.BLACK
+```
+
+## Implementation Variations
+
+### 1. Red-Black Tree with Delete Operation
+```python
+def delete(self, val):
+    z = self._find(val)
+    if not z:
+        return False
+    
+    y = z
+    y_original_color = y.color
+    
+    if z.left == self.NIL:
+        x = z.right
+        self._transplant(z, z.right)
+    elif z.right == self.NIL:
+        x = z.left
+        self._transplant(z, z.left)
+    else:
+        y = self._minimum(z.right)
+        y_original_color = y.color
+        x = y.right
+        
+        if y.parent == z:
+            x.parent = y
+        else:
+            self._transplant(y, y.right)
+            y.right = z.right
+            y.right.parent = y
+        
+        self._transplant(z, y)
+        y.left = z.left
+        y.left.parent = y
+        y.color = z.color
+    
+    if y_original_color == Color.BLACK:
+        self._fix_delete(x)
+    
+    return True
+
+def _fix_delete(self, x):
+    while x != self.root and x.color == Color.BLACK:
+        if x == x.parent.left:
+            w = x.parent.right
+            if w.color == Color.RED:
+                w.color = Color.BLACK
+                x.parent.color = Color.RED
+                self.left_rotate(x.parent)
+                w = x.parent.right
+            
+            if w.left.color == Color.BLACK and w.right.color == Color.BLACK:
+                w.color = Color.RED
+                x = x.parent
+            else:
+                if w.right.color == Color.BLACK:
+                    w.left.color = Color.BLACK
+                    w.color = Color.RED
+                    self.right_rotate(w)
+                    w = x.parent.right
+                
+                w.color = x.parent.color
+                x.parent.color = Color.BLACK
+                w.right.color = Color.BLACK
+                self.left_rotate(x.parent)
+                x = self.root
+        else:
+            # Mirror image of above code
+            w = x.parent.left
+            if w.color == Color.RED:
+                w.color = Color.BLACK
+                x.parent.color = Color.RED
+                self.right_rotate(x.parent)
+                w = x.parent.left
+            
+            if w.right.color == Color.BLACK and w.left.color == Color.BLACK:
+                w.color = Color.RED
+                x = x.parent
+            else:
+                if w.left.color == Color.BLACK:
+                    w.right.color = Color.BLACK
+                    w.color = Color.RED
+                    self.left_rotate(w)
+                    w = x.parent.left
+                
+                w.color = x.parent.color
+                x.parent.color = Color.BLACK
+                w.left.color = Color.BLACK
+                self.right_rotate(x.parent)
+                x = self.root
+    
+    x.color = Color.BLACK
+```
+
+### 2. Red-Black Tree with Order Statistics
+```python
+def select(self, k):
+    """Find kth smallest element (0-based)"""
+    if k < 0 or k >= self.root.size:
+        return None
+    return self._select(self.root, k)
+
+def _select(self, x, k):
+    r = x.left.size
+    if k == r:
+        return x.val
+    elif k < r:
+        return self._select(x.left, k)
+    else:
+        return self._select(x.right, k - r - 1)
+
+def rank(self, val):
+    """Return number of nodes less than val"""
+    x = self.root
+    rank = 0
+    while x != self.NIL:
+        if val == x.val:
+            return rank + x.left.size
+        elif val < x.val:
+            x = x.left
+        else:
+            rank += x.left.size + 1
+            x = x.right
+    return rank
+```
+
+## Time Complexities
+
+| Operation          | Average    | Worst      |
+|-------------------|------------|------------|
+| Insert            | O(log n)   | O(log n)   |
+| Delete            | O(log n)   | O(log n)   |
+| Search            | O(log n)   | O(log n)   |
+| Select            | O(log n)   | O(log n)   |
+| Rank              | O(log n)   | O(log n)   |
+| Min/Max           | O(log n)   | O(log n)   |
+
+## Space Complexities
+
+| Implementation    | Space Complexity | Additional Notes                          |
+|------------------|------------------|------------------------------------------|
+| Basic RB Tree    | O(n)            | Color bit per node                       |
+| With Parent      | O(n)            | Extra parent pointer                     |
+| With Size        | O(n)            | Extra size field for order statistics    |
+
+## Common Data Structure Patterns
+
+1. Color Management
+   - Red node properties
+   - Black node properties
+   - Black height invariant
+
+2. Balancing Operations
+   - Color flips
+   - Rotations
+   - Recoloring
+
+3. Path Properties
+   - Black height
+   - Red-Red violations
+   - Path length constraints
+
+4. Tree Properties
+   - BST properties
+   - Color properties
+   - Height balance
+
+5. Restructuring
+   - Single rotations
+   - Double rotations
+   - Color adjustments
+
+6. Tree Augmentation
+   - Size tracking
+   - Range queries
+   - Order statistics
+
+## Edge Cases to Consider
+
+1. Empty Tree
+```python
+def is_empty(self):
+    return self.root == self.NIL
+```
+
+2. Single Node
+```python
+def is_single_node(self):
+    return self.root != self.NIL and self.root.left == self.NIL and self.root.right == self.NIL
+```
+
+3. Color Violations
+```python
+def check_color_violations(self, node):
+    if node == self.NIL:
+        return True
+    if node.color == Color.RED:
+        return (node.left.color == Color.BLACK and 
+                node.right.color == Color.BLACK)
+    return True
+```
+
+## Optimization Techniques
+
+1. Path Compression
+```python
+def find_with_compression(self, val):
+    x = self.root
+    last_path = []
+    while x != self.NIL and x.val != val:
+        last_path.append(x)
+        if val < x.val:
+            x = x.left
+        else:
+            x = x.right
+    # Update parent pointers for accessed nodes
+    for node in last_path:
+        node.parent = x.parent
+    return x
+```
+
+2. Size Updates
+```python
+def update_size(self, node):
+    while node != self.NIL:
+        node.size = node.left.size + node.right.size + 1
+        node = node.parent
+```
+
+## Memory Management
+
+1. Node Pooling
+```python
+class NodePool:
+    def __init__(self, size=1000):
+        self.pool = [RBNode(None) for _ in range(size)]
+        self.available = list(range(size))
+    
+    def get_node(self, val):
+        if not self.available:
+            return RBNode(val)
+        idx = self.available.pop()
+        node = self.pool[idx]
+        node.val = val
+        node.left = node.right = node.parent = None
+        node.color = Color.RED
+        return node
+```
+
+2. Memory Cleanup
+```python
+def cleanup(self):
+    def recursive_cleanup(node):
+        if node == self.NIL:
+            return
+        recursive_cleanup(node.left)
+        recursive_cleanup(node.right)
+        node.left = node.right = node.parent = None
+        node.val = None
+    
+    recursive_cleanup(self.root)
+    self.root = self.NIL
+```
+
+## Performance Considerations
+
+1. Batch Operations
+```python
+def insert_many(self, values):
+    # Sort values for better initial structure
+    values.sort()
+    for val in values:
+        self.insert(val)
+```
+
+2. Rotation Optimization
+```python
+def optimized_rotate(self, node):
+    # Only rotate if necessary
+    if self._is_rotation_needed(node):
+        if node.val < node.parent.val:
+            self.right_rotate(node.parent)
+        else:
+            self.left_rotate(node.parent)
+```
+
+## Common Pitfalls
+
+1. Incorrect Color Assignment
+```python
+# Wrong
+def insert_wrong(self, val):
+    node = RBNode(val)
+    # Missing color initialization
+    self._bst_insert(node)
+
+# Correct
+def insert_correct(self, val):
+    node = RBNode(val)
+    node.color = Color.RED  # Initialize as red
+    self._bst_insert(node)
+    self._fix_insert(node)
+```
+
+2. Missing NIL Handling
+```python
+# Wrong
+def is_leaf_wrong(self, node):
+    return node.left is None and node.right is None
+
+# Correct
+def is_leaf_correct(self, node):
+    return node.left == self.NIL and node.right == self.NIL
+```
+
+3. Incorrect Size Updates
+```python
+# Wrong
+def update_size_wrong(self, node):
+    node.size = node.left.size + node.right.size + 1
+
+# Correct
+def update_size_correct(self, node):
+    while node != self.NIL:
+        node.size = (node.left.size if node.left != self.NIL else 0) + 
+                   (node.right.size if node.right != self.NIL else 0) + 1
+        node = node.parent
+```

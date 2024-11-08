@@ -1,0 +1,387 @@
+## Core Implementation
+
+### Singly Linked List
+```python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class SinglyLinkedList:
+    def __init__(self):
+        self.head = None
+    
+    def append(self, data):
+        if not self.head:
+            self.head = Node(data)
+            return
+        
+        current = self.head
+        while current.next:
+            current = current.next
+        current.next = Node(data)
+    
+    def delete(self, data):
+        if not self.head:
+            return
+        
+        if self.head.data == data:
+            self.head = self.head.next
+            return
+        
+        current = self.head
+        while current.next:
+            if current.next.data == data:
+                current.next = current.next.next
+                return
+            current = current.next
+```
+
+### Doubly Linked List
+```python
+class DNode:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+        self.prev = None
+
+class DoublyLinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None
+    
+    def append(self, data):
+        new_node = DNode(data)
+        if not self.head:
+            self.head = new_node
+            self.tail = new_node
+            return
+        
+        new_node.prev = self.tail
+        self.tail.next = new_node
+        self.tail = new_node
+    
+    def delete(self, data):
+        current = self.head
+        while current:
+            if current.data == data:
+                if current.prev:
+                    current.prev.next = current.next
+                else:
+                    self.head = current.next
+                
+                if current.next:
+                    current.next.prev = current.prev
+                else:
+                    self.tail = current.prev
+                return
+            current = current.next
+```
+
+## Implementation Variations
+
+### 1. Circular Linked List
+```python
+class CircularLinkedList:
+    def __init__(self):
+        self.head = None
+    
+    def append(self, data):
+        new_node = Node(data)
+        if not self.head:
+            self.head = new_node
+            new_node.next = self.head
+            return
+        
+        current = self.head
+        while current.next != self.head:
+            current = current.next
+        current.next = new_node
+        new_node.next = self.head
+```
+
+### 2. Skip List
+```python
+import random
+
+class SkipNode:
+    def __init__(self, data, level):
+        self.data = data
+        self.next = [None] * (level + 1)
+
+class SkipList:
+    def __init__(self, max_level):
+        self.max_level = max_level
+        self.head = SkipNode(None, max_level)
+        self.level = 0
+    
+    def random_level(self):
+        level = 0
+        while random.random() < 0.5 and level < self.max_level:
+            level += 1
+        return level
+    
+    def insert(self, data):
+        update = [None] * (self.max_level + 1)
+        current = self.head
+        
+        for i in range(self.level, -1, -1):
+            while current.next[i] and current.next[i].data < data:
+                current = current.next[i]
+            update[i] = current
+        
+        level = self.random_level()
+        if level > self.level:
+            for i in range(self.level + 1, level + 1):
+                update[i] = self.head
+            self.level = level
+        
+        new_node = SkipNode(data, level)
+        for i in range(level + 1):
+            new_node.next[i] = update[i].next[i]
+            update[i].next[i] = new_node
+```
+
+## Time Complexities
+
+| Operation           | Singly Linked | Doubly Linked | Circular    | Skip List   |
+|--------------------|---------------|---------------|-------------|-------------|
+| Access             | O(n)          | O(n)          | O(n)        | O(log n)*   |
+| Search             | O(n)          | O(n)          | O(n)        | O(log n)*   |
+| Insert (beginning) | O(1)          | O(1)          | O(1)        | O(log n)    |
+| Insert (end)       | O(n)**        | O(1)          | O(n)        | O(log n)    |
+| Delete (beginning) | O(1)          | O(1)          | O(1)        | O(log n)    |
+| Delete (end)       | O(n)          | O(1)          | O(n)        | O(log n)    |
+| Reverse           | O(n)          | O(n)          | O(n)        | N/A         |
+
+\* Average case with balanced skip list
+\** O(1) if tail pointer is maintained
+
+## Space Complexities
+
+| Implementation     | Space Complexity | Additional Notes                          |
+|-------------------|------------------|------------------------------------------|
+| Singly Linked     | O(n)            | One pointer per node                     |
+| Doubly Linked     | O(n)            | Two pointers per node                    |
+| Circular          | O(n)            | Similar to singly/doubly linked          |
+| Skip List         | O(n log n)      | Extra space for multiple levels          |
+
+## Common Data Structure Patterns
+
+1. Runner Technique (Fast/Slow Pointers)
+   - Cycle detection
+   - Middle element finding
+   - Nth node from end
+
+2. Multiple Pointers
+   - Previous, current, next references
+   - Window sliding
+   - List manipulation
+
+3. Dummy Head
+   - Simplify edge cases
+   - Consistent operations
+
+4. Stack/Queue Implementation
+   - Implementation base
+   - List reversal
+
+5. Merge Patterns
+   - Merge sort
+   - List combination
+
+6. Recursive Patterns
+   - Reversal
+   - Deep copy
+   - Comparison
+
+## Edge Cases to Consider
+
+1. Empty List
+```python
+if not self.head:
+    return None
+```
+
+2. Single Node
+```python
+if not self.head.next:
+    # Handle single node case
+    return self.head.data
+```
+
+3. Last Node
+```python
+if current.next is None:
+    # Handle last node
+    self.tail = current.prev
+```
+
+4. Cycle Detection
+```python
+def has_cycle(self):
+    if not self.head:
+        return False
+    
+    slow = fast = self.head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            return True
+    return False
+```
+
+## Optimization Techniques
+
+1. Tail Pointer Maintenance
+```python
+class OptimizedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None  # Maintain tail pointer
+    
+    def append(self, data):
+        new_node = Node(data)
+        if not self.head:
+            self.head = new_node
+            self.tail = new_node
+            return
+        
+        self.tail.next = new_node
+        self.tail = new_node  # O(1) append
+```
+
+2. Length Tracking
+```python
+class TrackedList:
+    def __init__(self):
+        self.head = None
+        self.length = 0  # Track length
+    
+    def append(self, data):
+        # ... append logic ...
+        self.length += 1
+```
+
+3. Batch Operations
+```python
+def batch_insert(self, data_list):
+    current = self.head
+    while current.next:
+        current = current.next
+    
+    # Build nodes in memory first
+    for data in data_list:
+        current.next = Node(data)
+        current = current.next
+```
+
+## Memory Management
+
+1. Reference Cleanup
+```python
+def delete_node(self, node):
+    if node.next:
+        node.data = node.next.data
+        node.next = node.next.next
+    node.next = None  # Clear reference
+```
+
+2. Circular Reference Prevention
+```python
+def clear_list(self):
+    current = self.head
+    while current:
+        next_node = current.next
+        current.next = None  # Break references
+        current.data = None
+        current = next_node
+    self.head = None
+```
+
+3. Memory Pool
+```python
+class NodePool:
+    def __init__(self, size):
+        self.pool = [Node(None) for _ in range(size)]
+        self.available = list(range(size))
+    
+    def get_node(self):
+        if self.available:
+            return self.pool[self.available.pop()]
+        return Node(None)  # Fallback
+```
+
+## Performance Considerations
+
+1. Cache-Friendly Traversal
+```python
+def traverse_batch(self, batch_size=1000):
+    current = self.head
+    batch = []
+    
+    while current:
+        batch.append(current.data)
+        if len(batch) == batch_size:
+            process_batch(batch)
+            batch = []
+        current = current.next
+```
+
+2. Iterator Implementation
+```python
+class LinkedList:
+    def __iter__(self):
+        current = self.head
+        while current:
+            yield current.data
+            current = current.next
+```
+
+## Common Pitfalls
+
+1. Lost Head Reference
+```python
+# Wrong
+self.head = self.head.next
+self.head.prev = None  # Error if head is None
+
+# Correct
+if self.head:
+    self.head = self.head.next
+    if self.head:
+        self.head.prev = None
+```
+
+2. Memory Leak in Circular Lists
+```python
+# Memory leak
+def delete_circular(self, node):
+    if node.next == node:  # Single node
+        self.head = None
+        return
+    
+    # Wrong: circular reference remains
+    node.next = node.next.next
+    
+    # Correct: break circular reference
+    current = self.head
+    while current.next != node:
+        current = current.next
+    current.next = node.next
+```
+
+3. Skip List Balancing
+```python
+# Poor distribution
+def bad_random_level(self):
+    return random.randint(0, self.max_level)
+
+# Better distribution
+def good_random_level(self):
+    level = 0
+    while random.random() < 0.5 and level < self.max_level:
+        level += 1
+    return level
+```

@@ -1,0 +1,484 @@
+## Core Implementation
+
+### Adjacency List Graph
+```python
+class Graph:
+    def __init__(self, directed=False):
+        self.graph = {}
+        self.directed = directed
+    
+    def add_vertex(self, vertex):
+        if vertex not in self.graph:
+            self.graph[vertex] = set()
+    
+    def add_edge(self, u, v, weight=None):
+        self.add_vertex(u)
+        self.add_vertex(v)
+        self.graph[u].add((v, weight) if weight else v)
+        if not self.directed:
+            self.graph[v].add((u, weight) if weight else u)
+    
+    def remove_edge(self, u, v):
+        if u in self.graph and v in self.graph:
+            self.graph[u].discard(v)
+            if not self.directed:
+                self.graph[v].discard(u)
+    
+    def get_neighbors(self, vertex):
+        return self.graph.get(vertex, set())
+    
+    def vertices(self):
+        return list(self.graph.keys())
+    
+    def edges(self):
+        edges = []
+        for vertex in self.graph:
+            for neighbor in self.graph[vertex]:
+                if not self.directed or (neighbor, vertex) not in edges:
+                    edges.append((vertex, neighbor))
+        return edges
+```
+
+### Adjacency Matrix Graph
+```python
+class GraphMatrix:
+    def __init__(self, vertices, directed=False):
+        self.V = vertices
+        self.directed = directed
+        self.matrix = [[0] * vertices for _ in range(vertices)]
+    
+    def add_edge(self, u, v, weight=1):
+        if 0 <= u < self.V and 0 <= v < self.V:
+            self.matrix[u][v] = weight
+            if not self.directed:
+                self.matrix[v][u] = weight
+    
+    def remove_edge(self, u, v):
+        if 0 <= u < self.V and 0 <= v < self.V:
+            self.matrix[u][v] = 0
+            if not self.directed:
+                self.matrix[v][u] = 0
+    
+    def get_neighbors(self, vertex):
+        if 0 <= vertex < self.V:
+            return [i for i in range(self.V) if self.matrix[vertex][i] != 0]
+        return []
+```
+
+## Implementation Variations
+
+### 1. Weighted Graph
+```python
+class WeightedGraph:
+    def __init__(self, directed=False):
+        self.graph = {}
+        self.directed = directed
+    
+    def add_edge(self, u, v, weight):
+        if u not in self.graph:
+            self.graph[u] = {}
+        if v not in self.graph:
+            self.graph[v] = {}
+        
+        self.graph[u][v] = weight
+        if not self.directed:
+            self.graph[v][u] = weight
+    
+    def get_weight(self, u, v):
+        return self.graph.get(u, {}).get(v)
+```
+
+### 2. Edge List Graph
+```python
+class EdgeListGraph:
+    def __init__(self, directed=False):
+        self.edges = []
+        self.directed = directed
+    
+    def add_edge(self, u, v, weight=None):
+        edge = (u, v, weight) if weight else (u, v)
+        self.edges.append(edge)
+        if not self.directed and u != v:
+            edge = (v, u, weight) if weight else (v, u)
+            self.edges.append(edge)
+```
+
+## Core Algorithms
+
+### 1. DFS (Depth-First Search)
+```python
+def dfs(self, start, visited=None):
+    if visited is None:
+        visited = set()
+    
+    visited.add(start)
+    print(start, end=' ')  # Process vertex
+    
+    for neighbor in self.get_neighbors(start):
+        if neighbor not in visited:
+            self.dfs(neighbor, visited)
+```
+
+### 2. BFS (Breadth-First Search)
+```python
+from collections import deque
+
+def bfs(self, start):
+    visited = set()
+    queue = deque([start])
+    visited.add(start)
+    
+    while queue:
+        vertex = queue.popleft()
+        print(vertex, end=' ')  # Process vertex
+        
+        for neighbor in self.get_neighbors(vertex):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+```
+
+### 3. Dijkstra's Algorithm
+```python
+import heapq
+
+def dijkstra(self, start):
+    distances = {vertex: float('infinity') for vertex in self.graph}
+    distances[start] = 0
+    pq = [(0, start)]
+    previous = {vertex: None for vertex in self.graph}
+    
+    while pq:
+        current_distance, current_vertex = heapq.heappop(pq)
+        
+        if current_distance > distances[current_vertex]:
+            continue
+        
+        for neighbor, weight in self.graph[current_vertex].items():
+            distance = current_distance + weight
+            
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                previous[neighbor] = current_vertex
+                heapq.heappush(pq, (distance, neighbor))
+    
+    return distances, previous
+```
+
+### 4. Bellman-Ford Algorithm
+```python
+def bellman_ford(self, start):
+    distances = {vertex: float('infinity') for vertex in self.graph}
+    distances[start] = 0
+    
+    for _ in range(len(self.graph) - 1):
+        for u in self.graph:
+            for v, weight in self.graph[u].items():
+                if distances[u] + weight < distances[v]:
+                    distances[v] = distances[u] + weight
+    
+    # Check for negative cycles
+    for u in self.graph:
+        for v, weight in self.graph[u].items():
+            if distances[u] + weight < distances[v]:
+                raise ValueError("Graph contains negative cycle")
+    
+    return distances
+```
+
+## Time Complexities
+
+| Operation/Algorithm | Adjacency List | Adjacency Matrix | Edge List |
+|--------------------|----------------|------------------|-----------|
+| Add Vertex         | O(1)           | O(V²)           | O(1)      |
+| Add Edge           | O(1)           | O(1)            | O(1)      |
+| Remove Edge        | O(E)           | O(1)            | O(E)      |
+| Query Edge         | O(degree(V))   | O(1)            | O(E)      |
+| DFS               | O(V + E)       | O(V²)           | O(V + E)  |
+| BFS               | O(V + E)       | O(V²)           | O(V + E)  |
+| Dijkstra          | O((V+E)log V)  | O(V²)           | O(ElogV)  |
+| Bellman-Ford      | O(VE)          | O(V³)           | O(VE)     |
+
+## Space Complexities
+
+| Implementation    | Space Complexity | Additional Notes                          |
+|------------------|------------------|------------------------------------------|
+| Adjacency List   | O(V + E)        | Efficient for sparse graphs              |
+| Adjacency Matrix | O(V²)           | Efficient for dense graphs               |
+| Edge List        | O(E)            | Best for algorithms that process edges   |
+
+## Common Data Structure Patterns
+
+1. Graph Traversal
+   - DFS (Stack/Recursion)
+   - BFS (Queue)
+   - Bidirectional Search
+
+2. Shortest Path
+   - Dijkstra's Algorithm
+   - Bellman-Ford
+   - Floyd-Warshall
+
+3. Minimum Spanning Tree
+   - Kruskal's Algorithm
+   - Prim's Algorithm
+
+4. Strongly Connected Components
+   - Kosaraju's Algorithm
+   - Tarjan's Algorithm
+
+5. Topological Sort
+   - DFS-based
+   - Kahn's Algorithm
+
+6. Cycle Detection
+   - DFS with colors
+   - Union-Find
+
+## Edge Cases to Consider
+
+1. Empty Graph
+```python
+if not self.graph:
+    return None
+```
+
+2. Self-loops
+```python
+def has_self_loop(self, vertex):
+    return vertex in self.get_neighbors(vertex)
+```
+
+3. Disconnected Components
+```python
+def find_components(self):
+    visited = set()
+    components = []
+    
+    for vertex in self.vertices():
+        if vertex not in visited:
+            component = set()
+            self._dfs_component(vertex, visited, component)
+            components.append(component)
+    
+    return components
+
+def _dfs_component(self, vertex, visited, component):
+    visited.add(vertex)
+    component.add(vertex)
+    
+    for neighbor in self.get_neighbors(vertex):
+        if neighbor not in visited:
+            self._dfs_component(neighbor, visited, component)
+```
+
+## Optimization Techniques
+
+1. Bi-directional Search
+```python
+def bidirectional_search(self, start, end):
+    if start == end:
+        return [start]
+    
+    forward_queue = deque([start])
+    backward_queue = deque([end])
+    forward_visited = {start: [start]}
+    backward_visited = {end: [end]}
+    
+    while forward_queue and backward_queue:
+        # Forward BFS
+        current = forward_queue.popleft()
+        for neighbor in self.get_neighbors(current):
+            if neighbor in backward_visited:
+                return forward_visited[current] + backward_visited[neighbor][::-1][1:]
+            if neighbor not in forward_visited:
+                forward_visited[neighbor] = forward_visited[current] + [neighbor]
+                forward_queue.append(neighbor)
+        
+        # Backward BFS
+        current = backward_queue.popleft()
+        for neighbor in self.get_neighbors(current):
+            if neighbor in forward_visited:
+                return forward_visited[neighbor] + backward_visited[current][::-1][1:]
+            if neighbor not in backward_visited:
+                backward_visited[neighbor] = backward_visited[current] + [neighbor]
+                backward_queue.append(neighbor)
+    
+    return None
+```
+
+2. Path Compression (Union-Find)
+```python
+class UnionFind:
+    def __init__(self, vertices):
+        self.parent = {v: v for v in vertices}
+        self.rank = {v: 0 for v in vertices}
+    
+    def find(self, item):
+        if self.parent[item] != item:
+            self.parent[item] = self.find(self.parent[item])
+        return self.parent[item]
+    
+    def union(self, x, y):
+        rootx = self.find(x)
+        rooty = self.find(y)
+        
+        if rootx != rooty:
+            if self.rank[rootx] < self.rank[rooty]:
+                rootx, rooty = rooty, rootx
+            self.parent[rooty] = rootx
+            if self.rank[rootx] == self.rank[rooty]:
+                self.rank[rootx] += 1
+```
+
+## Memory Management
+
+1. Sparse Graph Optimization
+```python
+class SparseGraph:
+    def __init__(self):
+        self.edges = {}  # Using dictionary instead of matrix
+        self.vertices = set()
+    
+    def add_edge(self, u, v, weight=1):
+        self.vertices.add(u)
+        self.vertices.add(v)
+        if u not in self.edges:
+            self.edges[u] = {}
+        self.edges[u][v] = weight
+```
+
+2. Memory-Efficient Edge Storage
+```python
+class CompactEdge:
+    __slots__ = ['src', 'dst', 'weight']
+    
+    def __init__(self, src, dst, weight=1):
+        self.src = src
+        self.dst = dst
+        self.weight = weight
+
+class MemoryEfficientGraph:
+    def __init__(self):
+        self.edges = []
+    
+    def add_edge(self, src, dst, weight=1):
+        self.edges.append(CompactEdge(src, dst, weight))
+```
+
+## Performance Considerations
+
+1. Lazy Loading for Large Graphs
+```python
+class LazyGraph:
+    def __init__(self, edge_file):
+        self.edge_file = edge_file
+        self.loaded_vertices = set()
+        self.graph = {}
+    
+    def load_vertex(self, vertex):
+        if vertex not in self.loaded_vertices:
+            # Load vertex and its edges from file
+            self._load_from_file(vertex)
+            self.loaded_vertices.add(vertex)
+    
+    def get_neighbors(self, vertex):
+        self.load_vertex(vertex)
+        return self.graph.get(vertex, set())
+```
+
+2. Batch Processing
+```python
+def process_subgraph(self, vertices, batch_size=1000):
+    for i in range(0, len(vertices), batch_size):
+        batch = vertices[i:i + batch_size]
+        subgraph = self._extract_subgraph(batch)
+        # Process subgraph
+        yield subgraph
+```
+
+## Common Pitfalls
+
+1. Incorrect Cycle Detection
+```python
+# Wrong
+def has_cycle_wrong(self):
+    visited = set()
+    
+    def dfs(vertex):
+        visited.add(vertex)
+        for neighbor in self.get_neighbors(vertex):
+            if neighbor in visited:
+                return True
+            if dfs(neighbor):
+                return True
+        return False
+    
+    return any(dfs(v) for v in self.vertices() if v not in visited)
+
+# Correct
+def has_cycle(self):
+    visited = set()
+    rec_stack = set()
+    
+    def dfs(vertex):
+        visited.add(vertex)
+        rec_stack.add(vertex)
+        
+        for neighbor in self.get_neighbors(vertex):
+            if neighbor not in visited:
+                if dfs(neighbor):
+                    return True
+            elif neighbor in rec_stack:
+                return True
+        
+        rec_stack.remove(vertex)
+        return False
+    
+    return any(dfs(v) for v in self.vertices() if v not in visited)
+```
+
+2. Memory Leak in Graph Modification
+```python
+# Wrong
+def remove_vertex_wrong(self, vertex):
+    del self.graph[vertex]  # Leaves dangling references
+
+# Correct
+def remove_vertex(self, vertex):
+    # Remove all edges pointing to vertex
+    for v in self.graph:
+        self.graph[v].discard(vertex)
+    # Remove vertex and its edges
+    del self.graph[vertex]
+```
+
+3. Inefficient Path Finding
+```python
+# Wrong (exponential complexity)
+def find_all_paths_wrong(self, start, end, path=[]):
+    path = path + [start]
+    if start == end:
+        return [path]
+    paths = []
+    for neighbor in self.get_neighbors(start):
+        if neighbor not in path:
+            new_paths = self.find_all_paths_wrong(neighbor, end, path)
+            paths.extend(new_paths)
+    return paths
+
+# Better (using generator)
+def find_all_paths(self, start, end):
+    def dfs(current, path, visited):
+        if current == end:
+            yield path
+        else:
+            for neighbor in self.get_neighbors(current):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    yield from dfs(neighbor, path + [neighbor], visited)
+                    visited.remove(neighbor)
+    
+    visited = {start}
+    yield from dfs(start, [start], visited)
+```

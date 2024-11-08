@@ -1,0 +1,942 @@
+---
+title: 'Python OOP & Design Patterns'
+description: 'Comprehensive guide to Object-Oriented Programming in Python for Low Level Design interviews and implementation'
+---
+
+## Class Basics
+
+### Class Definition and Constructor
+
+```python
+class User:
+    # Class variable shared among all instances
+    user_count = 0
+    
+    # Constructor
+    def __init__(self, name: str, age: int):
+        # Instance variables unique to each instance
+        self.name = name  # Public attribute
+        self._age = age   # Protected attribute (convention)
+        self.__id = User.user_count  # Private attribute
+        User.user_count += 1
+    
+    # String representation
+    def __str__(self) -> str:
+        return f"User(name={self.name}, age={self._age})"
+    
+    # Official string representation
+    def __repr__(self) -> str:
+        return f"User('{self.name}', {self._age})"
+```
+
+### Property Decorators
+
+```python
+class BankAccount:
+    def __init__(self, balance: float):
+        self._balance = balance
+    
+    # Getter property
+    @property
+    def balance(self) -> float:
+        return self._balance
+    
+    # Setter property
+    @balance.setter
+    def balance(self, value: float):
+        if value < 0:
+            raise ValueError("Balance cannot be negative")
+        self._balance = value
+    
+    # Deleter property
+    @balance.deleter
+    def balance(self):
+        self._balance = 0
+
+# Usage
+account = BankAccount(100)
+print(account.balance)    # Using getter
+account.balance = 200     # Using setter
+del account.balance      # Using deleter
+```
+
+### Class and Static Methods
+
+```python
+class DateUtils:
+    @staticmethod
+    def is_valid_date(year: int, month: int, day: int) -> bool:
+        # Static method doesn't need class or instance reference
+        try:
+            datetime(year, month, day)
+            return True
+        except ValueError:
+            return False
+    
+    @classmethod
+    def from_string(cls, date_str: str) -> 'DateUtils':
+        # Class method receives class as first argument
+        year, month, day = map(int, date_str.split('-'))
+        return cls(year, month, day)
+```
+
+## Inheritance and Polymorphism
+
+### Single Inheritance
+
+```python
+class Vehicle:
+    def __init__(self, brand: str, model: str):
+        self.brand = brand
+        self.model = model
+    
+    def start_engine(self):
+        return "Engine starting..."
+
+class Car(Vehicle):
+    def __init__(self, brand: str, model: str, car_type: str):
+        # Call parent constructor
+        super().__init__(brand, model)
+        self.car_type = car_type
+    
+    # Override parent method
+    def start_engine(self):
+        return f"{super().start_engine()} Vroom!"
+```
+
+### Multiple Inheritance
+
+```python
+class Flyable:
+    def fly(self):
+        return "Flying..."
+
+class Swimmable:
+    def swim(self):
+        return "Swimming..."
+
+class Duck(Flyable, Swimmable):
+    def move(self):
+        return f"{self.fly()} and {self.swim()}"
+```
+
+### Abstract Base Classes
+
+```python
+from abc import ABC, abstractmethod
+
+class PaymentProcessor(ABC):
+    @abstractmethod
+    def process_payment(self, amount: float) -> bool:
+        pass
+    
+    @abstractmethod
+    def refund_payment(self, amount: float) -> bool:
+        pass
+
+class CreditCardProcessor(PaymentProcessor):
+    def process_payment(self, amount: float) -> bool:
+        return self._process_cc_payment(amount)
+    
+    def refund_payment(self, amount: float) -> bool:
+        return self._process_cc_refund(amount)
+    
+    def _process_cc_payment(self, amount: float) -> bool:
+        # Implementation details
+        pass
+```
+
+## Design Patterns
+
+### Singleton Pattern
+
+```python
+class Singleton:
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self):
+        # Initialize only if not already initialized
+        if not hasattr(self, 'initialized'):
+            self.initialized = True
+            self.data = {}
+
+# Thread-safe Singleton
+from threading import Lock
+
+class ThreadSafeSingleton:
+    _instance = None
+    _lock = Lock()
+    
+    def __new__(cls):
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+            return cls._instance
+```
+
+### Factory Pattern
+
+```python
+from abc import ABC, abstractmethod
+
+# Product interface
+class Animal(ABC):
+    @abstractmethod
+    def speak(self) -> str:
+        pass
+
+# Concrete products
+class Dog(Animal):
+    def speak(self) -> str:
+        return "Woof!"
+
+class Cat(Animal):
+    def speak(self) -> str:
+        return "Meow!"
+
+# Factory
+class AnimalFactory:
+    @staticmethod
+    def create_animal(animal_type: str) -> Animal:
+        if animal_type.lower() == "dog":
+            return Dog()
+        elif animal_type.lower() == "cat":
+            return Cat()
+        raise ValueError(f"Invalid animal type: {animal_type}")
+```
+
+### Observer Pattern
+
+```python
+from abc import ABC, abstractmethod
+from typing import List
+
+# Observer interface
+class Observer(ABC):
+    @abstractmethod
+    def update(self, message: str):
+        pass
+
+# Subject interface
+class Subject(ABC):
+    @abstractmethod
+    def attach(self, observer: Observer):
+        pass
+    
+    @abstractmethod
+    def detach(self, observer: Observer):
+        pass
+    
+    @abstractmethod
+    def notify(self):
+        pass
+
+# Concrete Subject
+class NewsAgency(Subject):
+    def __init__(self):
+        self._observers: List[Observer] = []
+        self._news: str = ""
+    
+    def attach(self, observer: Observer):
+        self._observers.append(observer)
+    
+    def detach(self, observer: Observer):
+        self._observers.remove(observer)
+    
+    def notify(self):
+        for observer in self._observers:
+            observer.update(self._news)
+    
+    def set_news(self, news: str):
+        self._news = news
+        self.notify()
+
+# Concrete Observer
+class NewsChannel(Observer):
+    def __init__(self, name: str):
+        self.name = name
+    
+    def update(self, message: str):
+        print(f"{self.name} received news: {message}")
+```
+
+### Strategy Pattern
+
+```python
+from abc import ABC, abstractmethod
+
+# Strategy interface
+class PaymentStrategy(ABC):
+    @abstractmethod
+    def pay(self, amount: float):
+        pass
+
+# Concrete strategies
+class CreditCardPayment(PaymentStrategy):
+    def __init__(self, card_number: str, expiry: str):
+        self.card_number = card_number
+        self.expiry = expiry
+    
+    def pay(self, amount: float):
+        print(f"Paid ${amount} using Credit Card {self.card_number}")
+
+class PayPalPayment(PaymentStrategy):
+    def __init__(self, email: str):
+        self.email = email
+    
+    def pay(self, amount: float):
+        print(f"Paid ${amount} using PayPal account {self.email}")
+
+# Context
+class ShoppingCart:
+    def __init__(self):
+        self.items = []
+        self.payment_strategy = None
+    
+    def set_payment_strategy(self, strategy: PaymentStrategy):
+        self.payment_strategy = strategy
+    
+    def checkout(self):
+        total = sum(item.price for item in self.items)
+        if self.payment_strategy:
+            self.payment_strategy.pay(total)
+        else:
+            raise Exception("No payment strategy set")
+```
+
+
+### Builder Pattern
+```python
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Pizza:
+    size: str
+    cheese: bool
+    pepperoni: bool
+    mushrooms: bool
+    sauce: str
+
+class PizzaBuilder:
+    def __init__(self):
+        self.reset()
+    
+    def reset(self):
+        self._pizza = Pizza(
+            size="medium",
+            cheese=False,
+            pepperoni=False,
+            mushrooms=False,
+            sauce="tomato"
+        )
+    
+    @property
+    def pizza(self) -> Pizza:
+        pizza = self._pizza
+        self.reset()
+        return pizza
+    
+    def set_size(self, size: str) -> 'PizzaBuilder':
+        self._pizza.size = size
+        return self
+    
+    def add_cheese(self) -> 'PizzaBuilder':
+        self._pizza.cheese = True
+        return self
+    
+    def add_pepperoni(self) -> 'PizzaBuilder':
+        self._pizza.pepperoni = True
+        return self
+    
+    def add_mushrooms(self) -> 'PizzaBuilder':
+        self._pizza.mushrooms = True
+        return self
+    
+    def set_sauce(self, sauce: str) -> 'PizzaBuilder':
+        self._pizza.sauce = sauce
+        return self
+
+# Usage
+builder = PizzaBuilder()
+pizza = builder.set_size("large").add_cheese().add_pepperoni().pizza
+```
+
+### Decorator Pattern
+```python
+from abc import ABC, abstractmethod
+from typing import Optional
+
+# Component interface
+class Coffee(ABC):
+    @abstractmethod
+    def cost(self) -> float:
+        pass
+    
+    @abstractmethod
+    def description(self) -> str:
+        pass
+
+# Concrete component
+class SimpleCoffee(Coffee):
+    def cost(self) -> float:
+        return 5.0
+    
+    def description(self) -> str:
+        return "Simple coffee"
+
+# Decorator base class
+class CoffeeDecorator(Coffee):
+    def __init__(self, coffee: Coffee):
+        self._coffee = coffee
+    
+    def cost(self) -> float:
+        return self._coffee.cost()
+    
+    def description(self) -> str:
+        return self._coffee.description()
+
+# Concrete decorators
+class MilkDecorator(CoffeeDecorator):
+    def cost(self) -> float:
+        return self._coffee.cost() + 1.0
+    
+    def description(self) -> str:
+        return f"{self._coffee.description()}, milk"
+
+class CaramelDecorator(CoffeeDecorator):
+    def cost(self) -> float:
+        return self._coffee.cost() + 2.0
+    
+    def description(self) -> str:
+        return f"{self._coffee.description()}, caramel"
+
+# Usage
+coffee = SimpleCoffee()
+coffee_with_milk = MilkDecorator(coffee)
+coffee_with_milk_and_caramel = CaramelDecorator(coffee_with_milk)
+```
+
+### Composite Pattern
+```python
+from abc import ABC, abstractmethod
+from typing import List
+
+# Component
+class FileSystemComponent(ABC):
+    def __init__(self, name: str):
+        self.name = name
+    
+    @abstractmethod
+    def display(self, indent: str = ""):
+        pass
+    
+    @abstractmethod
+    def size(self) -> int:
+        pass
+
+# Leaf
+class File(FileSystemComponent):
+    def __init__(self, name: str, size: int):
+        super().__init__(name)
+        self._size = size
+    
+    def display(self, indent: str = ""):
+        print(f"{indent}{self.name} ({self._size} bytes)")
+    
+    def size(self) -> int:
+        return self._size
+
+# Composite
+class Directory(FileSystemComponent):
+    def __init__(self, name: str):
+        super().__init__(name)
+        self._children: List[FileSystemComponent] = []
+    
+    def add(self, component: FileSystemComponent):
+        self._children.append(component)
+    
+    def remove(self, component: FileSystemComponent):
+        self._children.remove(component)
+    
+    def display(self, indent: str = ""):
+        print(f"{indent}{self.name}/")
+        for child in self._children:
+            child.display(indent + "  ")
+    
+    def size(self) -> int:
+        return sum(child.size() for child in self._children)
+```
+
+### Chain of Responsibility Pattern
+```python
+from abc import ABC, abstractmethod
+from typing import Optional
+
+class Handler(ABC):
+    def __init__(self):
+        self._next_handler: Optional[Handler] = None
+    
+    def set_next(self, handler: 'Handler') -> 'Handler':
+        self._next_handler = handler
+        return handler
+    
+    @abstractmethod
+    def handle(self, request: str) -> Optional[str]:
+        pass
+
+class AuthenticationHandler(Handler):
+    def handle(self, request: str) -> Optional[str]:
+        if "invalid_token" in request:
+            return "Authentication failed"
+        
+        if self._next_handler:
+            return self._next_handler.handle(request)
+        return None
+
+class AuthorizationHandler(Handler):
+    def handle(self, request: str) -> Optional[str]:
+        if "unauthorized" in request:
+            return "Not authorized"
+        
+        if self._next_handler:
+            return self._next_handler.handle(request)
+        return None
+
+class ValidationHandler(Handler):
+    def handle(self, request: str) -> Optional[str]:
+        if "invalid_data" in request:
+            return "Data validation failed"
+        
+        if self._next_handler:
+            return self._next_handler.handle(request)
+        return None
+
+# Usage
+auth = AuthenticationHandler()
+author = AuthorizationHandler()
+valid = ValidationHandler()
+
+auth.set_next(author).set_next(valid)
+```
+
+### Command Pattern
+```python
+from abc import ABC, abstractmethod
+from typing import List
+
+# Command interface
+class Command(ABC):
+    @abstractmethod
+    def execute(self):
+        pass
+    
+    @abstractmethod
+    def undo(self):
+        pass
+
+# Receiver
+class Editor:
+    def __init__(self):
+        self.text = ""
+    
+    def insert_text(self, text: str):
+        self.text += text
+    
+    def delete_text(self, length: int):
+        if length <= len(self.text):
+            self.text = self.text[:-length]
+
+# Concrete commands
+class InsertTextCommand(Command):
+    def __init__(self, editor: Editor, text: str):
+        self.editor = editor
+        self.text = text
+    
+    def execute(self):
+        self.editor.insert_text(self.text)
+    
+    def undo(self):
+        self.editor.delete_text(len(self.text))
+
+class DeleteTextCommand(Command):
+    def __init__(self, editor: Editor, length: int):
+        self.editor = editor
+        self.length = length
+        self.deleted_text = ""
+    
+    def execute(self):
+        if self.length <= len(self.editor.text):
+            self.deleted_text = self.editor.text[-self.length:]
+            self.editor.delete_text(self.length)
+    
+    def undo(self):
+        self.editor.insert_text(self.deleted_text)
+
+# Invoker
+class CommandHistory:
+    def __init__(self):
+        self._commands: List[Command] = []
+    
+    def execute(self, command: Command):
+        command.execute()
+        self._commands.append(command)
+    
+    def undo_last(self):
+        if self._commands:
+            command = self._commands.pop()
+            command.undo()
+```
+
+### State Pattern
+```python
+from abc import ABC, abstractmethod
+
+# State interface
+class VendingMachineState(ABC):
+    @abstractmethod
+    def insert_money(self, machine: 'VendingMachine', amount: int):
+        pass
+    
+    @abstractmethod
+    def select_product(self, machine: 'VendingMachine', product: str):
+        pass
+    
+    @abstractmethod
+    def dispense_product(self, machine: 'VendingMachine'):
+        pass
+
+# Concrete states
+class NoMoneyState(VendingMachineState):
+    def insert_money(self, machine: 'VendingMachine', amount: int):
+        machine.balance += amount
+        machine.set_state(HasMoneyState())
+    
+    def select_product(self, machine: 'VendingMachine', product: str):
+        print("Please insert money first")
+    
+    def dispense_product(self, machine: 'VendingMachine'):
+        print("Please insert money first")
+
+class HasMoneyState(VendingMachineState):
+    def insert_money(self, machine: 'VendingMachine', amount: int):
+        machine.balance += amount
+    
+    def select_product(self, machine: 'VendingMachine', product: str):
+        if product in machine.products:
+            if machine.balance >= machine.products[product]:
+                machine.selected_product = product
+                machine.set_state(DispensingState())
+            else:
+                print("Insufficient funds")
+        else:
+            print("Product not available")
+    
+    def dispense_product(self, machine: 'VendingMachine'):
+        print("Please select a product first")
+
+class DispensingState(VendingMachineState):
+    def insert_money(self, machine: 'VendingMachine', amount: int):
+        print("Please wait, dispensing product")
+    
+    def select_product(self, machine: 'VendingMachine', product: str):
+        print("Please wait, dispensing product")
+    
+    def dispense_product(self, machine: 'VendingMachine'):
+        price = machine.products[machine.selected_product]
+        machine.balance -= price
+        print(f"Dispensing {machine.selected_product}")
+        machine.selected_product = None
+        if machine.balance > 0:
+            machine.set_state(HasMoneyState())
+        else:
+            machine.set_state(NoMoneyState())
+
+# Context
+class VendingMachine:
+    def __init__(self):
+        self.state = NoMoneyState()
+        self.balance = 0
+        self.selected_product = None
+        self.products = {
+            "cola": 2,
+            "chips": 1,
+            "candy": 0.5
+        }
+    
+    def set_state(self, state: VendingMachineState):
+        self.state = state
+    
+    def insert_money(self, amount: int):
+        self.state.insert_money(self, amount)
+    
+    def select_product(self, product: str):
+        self.state.select_product(self, product)
+    
+    def dispense_product(self):
+        self.state.dispense_product(self)
+```
+
+### Proxy Pattern
+```python
+from abc import ABC, abstractmethod
+from typing import Dict, Optional
+
+# Subject interface
+class DatabaseExecutor(ABC):
+    @abstractmethod
+    def execute(self, query: str):
+        pass
+
+# Real subject
+class Database(DatabaseExecutor):
+    def execute(self, query: str):
+        print(f"Executing query: {query}")
+        # Actual database execution logic
+
+# Proxy
+class DatabaseProxy(DatabaseExecutor):
+    def __init__(self, database: Database):
+        self._database = database
+        self._cached_results: Dict[str, str] = {}
+        self._admin = False
+    
+    def authenticate(self, password: str):
+        self._admin = password == "admin"
+    
+    def execute(self, query: str):
+        if not self._admin:
+            if query.lower().startswith("delete") or query.lower().startswith("drop"):
+                raise Exception("DELETE/DROP operations not allowed for non-admin users")
+        
+        if query in self._cached_results:
+            print(f"Returning cached result for query: {query}")
+            return self._cached_results[query]
+        
+        result = self._database.execute(query)
+        self._cached_results[query] = result
+        return result
+```
+
+### Template Method Pattern
+```python
+from abc import ABC, abstractmethod
+
+class DataMiner(ABC):
+    def mine(self, path: str):
+        file = self._open_file(path)
+        data = self._extract_data(file)
+        analysis = self._analyze_data(data)
+        self._send_report(analysis)
+        self._close_file(file)
+    
+    @abstractmethod
+    def _open_file(self, path: str):
+        pass
+    
+    @abstractmethod
+    def _extract_data(self, file):
+        pass
+    
+    def _analyze_data(self, data):
+        # Common analysis logic
+        return f"Analysis of {data}"
+    
+    def _send_report(self, analysis):
+        print(f"Sending report: {analysis}")
+    
+    def _close_file(self, file):
+        print("Closing file")
+
+class PDFDataMiner(DataMiner):
+    def _open_file(self, path: str):
+        print(f"Opening PDF file: {path}")
+        return f"PDF_FILE_{path}"
+    
+    def _extract_data(self, file):
+        print(f"Extracting data from PDF: {file}")
+        return "PDF_DATA"
+
+class CSVDataMiner(DataMiner):
+    def _open_file(self, path: str):
+        print(f"Opening CSV file: {path}")
+        return f"CSV_FILE_{path}"
+    
+    def _extract_data(self, file):
+        print(f"Extracting data from CSV: {file}")
+        return "CSV_DATA"
+```
+
+## SOLID Principles
+
+### Single Responsibility Principle
+
+```python
+# Bad example
+class User:
+    def __init__(self, name: str):
+        self.name = name
+    
+    def save_to_db(self):  # Violation of SRP
+        # Database logic here
+        pass
+    
+    def generate_report(self):  # Violation of SRP
+        # Report generation logic here
+        pass
+
+# Good example
+class User:
+    def __init__(self, name: str):
+        self.name = name
+
+class UserRepository:
+    def save_user(self, user: User):
+        # Database logic here
+        pass
+
+class UserReportGenerator:
+    def generate_report(self, user: User):
+        # Report generation logic here
+        pass
+```
+
+### Open/Closed Principle
+
+```python
+from abc import ABC, abstractmethod
+
+# Open for extension, closed for modification
+class Shape(ABC):
+    @abstractmethod
+    def area(self) -> float:
+        pass
+
+class Rectangle(Shape):
+    def __init__(self, width: float, height: float):
+        self.width = width
+        self.height = height
+    
+    def area(self) -> float:
+        return self.width * self.height
+
+class Circle(Shape):
+    def __init__(self, radius: float):
+        self.radius = radius
+    
+    def area(self) -> float:
+        return 3.14 * self.radius ** 2
+
+class AreaCalculator:
+    def total_area(self, shapes: List[Shape]) -> float:
+        return sum(shape.area() for shape in shapes)
+```
+
+### Liskov Substitution Principle
+
+```python
+class Bird:
+    def fly(self):
+        pass
+
+# Violates LSP
+class Penguin(Bird):
+    def fly(self):
+        raise Exception("Can't fly!")  # Violates LSP
+
+# Better design
+class Bird:
+    pass
+
+class FlyingBird(Bird):
+    def fly(self):
+        pass
+
+class Penguin(Bird):
+    def swim(self):
+        pass
+```
+
+### Interface Segregation Principle
+
+```python
+# Bad design
+class Worker(ABC):
+    @abstractmethod
+    def work(self):
+        pass
+    
+    @abstractmethod
+    def eat(self):
+        pass
+    
+    @abstractmethod
+    def sleep(self):
+        pass
+
+# Better design
+class Workable(ABC):
+    @abstractmethod
+    def work(self):
+        pass
+
+class Eatable(ABC):
+    @abstractmethod
+    def eat(self):
+        pass
+
+class Sleepable(ABC):
+    @abstractmethod
+    def sleep(self):
+        pass
+
+class Human(Workable, Eatable, Sleepable):
+    def work(self):
+        pass
+    
+    def eat(self):
+        pass
+    
+    def sleep(self):
+        pass
+```
+
+### Dependency Inversion Principle
+
+```python
+# Bad design
+class EmailNotifier:
+    def notify(self, message: str):
+        # Send email
+        pass
+
+class UserManager:
+    def __init__(self):
+        self.notifier = EmailNotifier()  # High-level module depends on low-level module
+
+# Better design
+class Notifier(ABC):
+    @abstractmethod
+    def notify(self, message: str):
+        pass
+
+class EmailNotifier(Notifier):
+    def notify(self, message: str):
+        # Send email
+        pass
+
+class SMSNotifier(Notifier):
+    def notify(self, message: str):
+        # Send SMS
+        pass
+
+class UserManager:
+    def __init__(self, notifier: Notifier):
+        self.notifier = notifier  # Depends on abstraction
+```

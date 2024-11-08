@@ -1,0 +1,757 @@
+---
+title: 'Array Patterns'
+description: 'Comprehensive guide to array operations, algorithms, and common problem-solving patterns'
+---
+
+## 1. Searching Algorithms
+
+### Linear Search
+```python
+def linear_search(arr: list, target: int) -> int:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    for i in range(len(arr)):
+        if arr[i] == target:
+            return i
+    return -1
+```
+
+### Binary Search
+```python
+def binary_search(arr: list, target: int) -> int:
+    """
+    Time Complexity: O(log n)
+    Space Complexity: O(1)
+    """
+    left, right = 0, len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+
+# Binary Search Variants
+def lower_bound(arr: list, target: int) -> int:
+    """First element greater than or equal to target"""
+    left, right = 0, len(arr)
+    
+    while left < right:
+        mid = (left + right) // 2
+        if arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid
+    return left
+
+def upper_bound(arr: list, target: int) -> int:
+    """First element greater than target"""
+    left, right = 0, len(arr)
+    
+    while left < right:
+        mid = (left + right) // 2
+        if arr[mid] <= target:
+            left = mid + 1
+        else:
+            right = mid
+    return left
+```
+
+## 2. Sorting Algorithms
+
+### Quick Sort
+```python
+def quick_sort(arr: list) -> list:
+    """
+    Time Complexity: O(n log n) average, O(n²) worst
+    Space Complexity: O(log n)
+    """
+    def partition(low: int, high: int) -> int:
+        pivot = arr[high]
+        i = low - 1
+        
+        for j in range(low, high):
+            if arr[j] <= pivot:
+                i += 1
+                arr[i], arr[j] = arr[j], arr[i]
+        
+        arr[i + 1], arr[high] = arr[high], arr[i + 1]
+        return i + 1
+    
+    def quick_sort_helper(low: int, high: int) -> None:
+        if low < high:
+            pi = partition(low, high)
+            quick_sort_helper(low, pi - 1)
+            quick_sort_helper(pi + 1, high)
+    
+    quick_sort_helper(0, len(arr) - 1)
+    return arr
+```
+
+### Merge Sort
+```python
+def merge_sort(arr: list) -> list:
+    """
+    Time Complexity: O(n log n)
+    Space Complexity: O(n)
+    """
+    if len(arr) <= 1:
+        return arr
+    
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+    
+    return merge(left, right)
+
+def merge(left: list, right: list) -> list:
+    result = []
+    i = j = 0
+    
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result
+```
+
+## 3. Array Rotation
+
+### Basic Rotation
+```python
+def rotate_array(arr: list, k: int) -> list:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    n = len(arr)
+    k = k % n  # Normalize k
+    
+    def reverse(start: int, end: int) -> None:
+        while start < end:
+            arr[start], arr[end] = arr[end], arr[start]
+            start += 1
+            end -= 1
+    
+    # Reverse entire array
+    reverse(0, n - 1)
+    # Reverse first k elements
+    reverse(0, k - 1)
+    # Reverse remaining elements
+    reverse(k, n - 1)
+    
+    return arr
+
+# Juggling Algorithm for Rotation
+def rotate_juggling(arr: list, k: int) -> list:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    def gcd(a: int, b: int) -> int:
+        while b:
+            a, b = b, a % b
+        return a
+    
+    n = len(arr)
+    k = k % n
+    
+    for i in range(gcd(n, k)):
+        temp = arr[i]
+        j = i
+        
+        while True:
+            next_pos = (j + k) % n
+            if next_pos == i:
+                break
+            arr[j] = arr[next_pos]
+            j = next_pos
+        
+        arr[j] = temp
+    
+    return arr
+```
+
+## 4. Subarray Problems
+
+### Maximum Subarray Sum (Kadane's Algorithm)
+```python
+def kadanes_algorithm(arr: list) -> int:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    max_sum = current_sum = arr[0]
+    
+    for num in arr[1:]:
+        current_sum = max(num, current_sum + num)
+        max_sum = max(max_sum, current_sum)
+    
+    return max_sum
+
+# Variant: Maximum Subarray with Start and End Indices
+def max_subarray_with_indices(arr: list) -> tuple:
+    max_sum = current_sum = arr[0]
+    start = end = temp_start = 0
+    
+    for i in range(1, len(arr)):
+        if arr[i] > current_sum + arr[i]:
+            current_sum = arr[i]
+            temp_start = i
+        else:
+            current_sum += arr[i]
+        
+        if current_sum > max_sum:
+            max_sum = current_sum
+            start = temp_start
+            end = i
+    
+    return max_sum, start, end
+```
+
+## 5. Dutch National Flag Algorithm
+```python
+def dutch_national_flag(arr: list) -> list:
+    """
+    Sort array of 0s, 1s, and 2s
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    low = mid = 0
+    high = len(arr) - 1
+    
+    while mid <= high:
+        if arr[mid] == 0:
+            arr[low], arr[mid] = arr[mid], arr[low]
+            low += 1
+            mid += 1
+        elif arr[mid] == 1:
+            mid += 1
+        else:  # arr[mid] == 2
+            arr[mid], arr[high] = arr[high], arr[mid]
+            high -= 1
+    
+    return arr
+```
+
+## 6. Two Pointers Technique
+
+### Two Sum Problem
+```python
+def two_sum(arr: list, target: int) -> tuple:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    left, right = 0, len(arr) - 1
+    
+    while left < right:
+        current_sum = arr[left] + arr[right]
+        if current_sum == target:
+            return left, right
+        elif current_sum < target:
+            left += 1
+        else:
+            right -= 1
+    
+    return None
+
+# Three Sum Problem
+def three_sum(arr: list, target: int) -> list:
+    """
+    Time Complexity: O(n²)
+    Space Complexity: O(1)
+    """
+    arr.sort()
+    result = []
+    
+    for i in range(len(arr) - 2):
+        if i > 0 and arr[i] == arr[i-1]:
+            continue
+        
+        left, right = i + 1, len(arr) - 1
+        while left < right:
+            current_sum = arr[i] + arr[left] + arr[right]
+            
+            if current_sum == target:
+                result.append([arr[i], arr[left], arr[right]])
+                while left < right and arr[left] == arr[left+1]:
+                    left += 1
+                while left < right and arr[right] == arr[right-1]:
+                    right -= 1
+                left += 1
+                right -= 1
+            elif current_sum < target:
+                left += 1
+            else:
+                right -= 1
+    
+    return result
+```
+
+## 7. Sliding Window
+
+### Fixed Size Window
+```python
+def max_sum_fixed_window(arr: list, k: int) -> int:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    if not arr or k <= 0:
+        return 0
+    
+    window_sum = sum(arr[:k])
+    max_sum = window_sum
+    
+    for i in range(k, len(arr)):
+        window_sum = window_sum - arr[i-k] + arr[i]
+        max_sum = max(max_sum, window_sum)
+    
+    return max_sum
+```
+
+### Variable Size Window
+```python
+def longest_subarray_sum_k(arr: list, k: int) -> int:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    max_length = current_sum = 0
+    left = 0
+    
+    for right in range(len(arr)):
+        current_sum += arr[right]
+        
+        while current_sum > k and left <= right:
+            current_sum -= arr[left]
+            left += 1
+        
+        if current_sum == k:
+            max_length = max(max_length, right - left + 1)
+    
+    return max_length
+```
+
+## 8. Prefix Sum
+
+### Basic Prefix Sum
+```python
+def build_prefix_sum(arr: list) -> list:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(n)
+    """
+    prefix = [0] * (len(arr) + 1)
+    for i in range(len(arr)):
+        prefix[i + 1] = prefix[i] + arr[i]
+    return prefix
+
+def range_sum(prefix: list, left: int, right: int) -> int:
+    """
+    Time Complexity: O(1)
+    """
+    return prefix[right + 1] - prefix[left]
+
+# 2D Prefix Sum
+def build_2d_prefix_sum(matrix: list) -> list:
+    """
+    Time Complexity: O(m*n)
+    Space Complexity: O(m*n)
+    """
+    if not matrix or not matrix[0]:
+        return []
+        
+    m, n = len(matrix), len(matrix[0])
+    prefix = [[0] * (n + 1) for _ in range(m + 1)]
+    
+    for i in range(m):
+        for j in range(n):
+            prefix[i + 1][j + 1] = (prefix[i + 1][j] + 
+                                   prefix[i][j + 1] - 
+                                   prefix[i][j] + 
+                                   matrix[i][j])
+    
+    return prefix
+
+def get_region_sum(prefix: list, x1: int, y1: int, x2: int, y2: int) -> int:
+    """
+    Time Complexity: O(1)
+    """
+    return (prefix[x2 + 1][y2 + 1] - 
+            prefix[x2 + 1][y1] - 
+            prefix[x1][y2 + 1] + 
+            prefix[x1][y1])
+```
+
+## Common Interview Problems
+
+### 1. Maximum Product Subarray
+```python
+def max_product_subarray(arr: list) -> int:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    max_so_far = min_so_far = result = arr[0]
+    
+    for num in arr[1:]:
+        candidates = (num, max_so_far * num, min_so_far * num)
+        max_so_far = max(candidates)
+        min_so_far = min(candidates)
+        result = max(result, max_so_far)
+    
+    return result
+```
+
+### 2. Next Permutation
+```python
+def next_permutation(arr: list) -> list:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    # Find first decreasing element
+    i = len(arr) - 2
+    while i >= 0 and arr[i] >= arr[i + 1]:
+        i -= 1
+    
+    if i >= 0:
+        # Find rightmost successor to pivot
+        j = len(arr) - 1
+        while j >= 0 and arr[j] <= arr[i]:
+            j -= 1
+        arr[i], arr[j] = arr[j], arr[i]
+    
+    # Reverse suffix
+    left = i + 1
+    right = len(arr) - 1
+    while left < right:
+        arr[left], arr[right] = arr[right], arr[left]
+        left += 1
+        right -= 1
+    
+    return arr
+```
+
+# Advanced Array Techniques
+
+## 1. Matrix Operations
+
+### Spiral Matrix Traversal
+```python
+def spiral_matrix(matrix: list) -> list:
+    """
+    Time Complexity: O(m*n)
+    Space Complexity: O(1)
+    """
+    if not matrix:
+        return []
+        
+    result = []
+    top = left = 0
+    bottom, right = len(matrix) - 1, len(matrix[0]) - 1
+    
+    while top <= bottom and left <= right:
+        # Traverse right
+        for j in range(left, right + 1):
+            result.append(matrix[top][j])
+        top += 1
+        
+        # Traverse down
+        for i in range(top, bottom + 1):
+            result.append(matrix[i][right])
+        right -= 1
+        
+        if top <= bottom:
+            # Traverse left
+            for j in range(right, left - 1, -1):
+                result.append(matrix[bottom][j])
+            bottom -= 1
+        
+        if left <= right:
+            # Traverse up
+            for i in range(bottom, top - 1, -1):
+                result.append(matrix[i][left])
+            left += 1
+    
+    return result
+```
+
+### Matrix Rotation
+```python
+def rotate_matrix(matrix: list) -> None:
+    """
+    Rotate matrix 90 degrees clockwise in-place
+    Time Complexity: O(n²)
+    Space Complexity: O(1)
+    """
+    n = len(matrix)
+    
+    # Transpose matrix
+    for i in range(n):
+        for j in range(i, n):
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+    
+    # Reverse each row
+    for i in range(n):
+        matrix[i].reverse()
+
+def rotate_matrix_counter_clockwise(matrix: list) -> None:
+    """
+    Rotate matrix 90 degrees counter-clockwise in-place
+    """
+    n = len(matrix)
+    
+    # Transpose matrix
+    for i in range(n):
+        for j in range(i, n):
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+    
+    # Reverse each column
+    for j in range(n):
+        for i in range(n//2):
+            matrix[i][j], matrix[n-1-i][j] = matrix[n-1-i][j], matrix[i][j]
+```
+
+## 2. Advanced Sliding Window
+
+### Minimum Window Substring
+```python
+def min_window_substring(s: str, t: str) -> str:
+    """
+    Find minimum window in s containing all characters of t
+    Time Complexity: O(n)
+    Space Complexity: O(k) where k is the size of character set
+    """
+    from collections import Counter
+    
+    if not s or not t:
+        return ""
+        
+    target_count = Counter(t)
+    required = len(target_count)
+    formed = 0
+    
+    window_count = {}
+    left = start = end = 0
+    min_len = float('inf')
+    
+    for right in range(len(s)):
+        char = s[right]
+        window_count[char] = window_count.get(char, 0) + 1
+        
+        if char in target_count and window_count[char] == target_count[char]:
+            formed += 1
+        
+        while formed == required:
+            if right - left + 1 < min_len:
+                min_len = right - left + 1
+                start, end = left, right + 1
+            
+            char = s[left]
+            window_count[char] -= 1
+            
+            if char in target_count and window_count[char] < target_count[char]:
+                formed -= 1
+            
+            left += 1
+    
+    return s[start:end] if min_len != float('inf') else ""
+```
+
+### Longest Substring Without Repeating Characters
+```python
+def longest_substring_no_repeat(s: str) -> int:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(k) where k is the size of character set
+    """
+    char_index = {}
+    max_length = start = 0
+    
+    for end, char in enumerate(s):
+        if char in char_index and char_index[char] >= start:
+            start = char_index[char] + 1
+        else:
+            max_length = max(max_length, end - start + 1)
+        char_index[char] = end
+    
+    return max_length
+```
+
+## 3. Advanced Two Pointers
+
+### Container With Most Water
+```python
+def max_area(height: list) -> int:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    max_water = 0
+    left, right = 0, len(height) - 1
+    
+    while left < right:
+        width = right - left
+        max_water = max(max_water, width * min(height[left], height[right]))
+        
+        if height[left] < height[right]:
+            left += 1
+        else:
+            right -= 1
+    
+    return max_water
+```
+
+### Trapping Rain Water
+```python
+def trap_water(height: list) -> int:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    if not height:
+        return 0
+        
+    left, right = 0, len(height) - 1
+    left_max = right_max = water = 0
+    
+    while left < right:
+        if height[left] < height[right]:
+            if height[left] >= left_max:
+                left_max = height[left]
+            else:
+                water += left_max - height[left]
+            left += 1
+        else:
+            if height[right] >= right_max:
+                right_max = height[right]
+            else:
+                water += right_max - height[right]
+            right -= 1
+    
+    return water
+```
+
+## 4. Advanced Prefix Sum
+
+### Count Number of Nice Subarrays
+```python
+def number_of_nice_subarrays(nums: list, k: int) -> int:
+    """
+    Count subarrays with exactly k odd numbers
+    Time Complexity: O(n)
+    Space Complexity: O(n)
+    """
+    prefix_sum = [0] * (len(nums) + 1)
+    curr = count = 0
+    
+    for num in nums:
+        curr += num % 2
+        if curr >= k:
+            count += prefix_sum[curr - k]
+        prefix_sum[curr] += 1
+    
+    return count
+```
+
+### Range Sum Query 2D - Immutable
+```python
+class NumMatrix:
+    def __init__(self, matrix: list):
+        """
+        Time Complexity: O(m*n)
+        Space Complexity: O(m*n)
+        """
+        if not matrix or not matrix[0]:
+            return
+            
+        m, n = len(matrix), len(matrix[0])
+        self.dp = [[0] * (n + 1) for _ in range(m + 1)]
+        
+        for i in range(m):
+            for j in range(n):
+                self.dp[i + 1][j + 1] = (self.dp[i + 1][j] + 
+                                        self.dp[i][j + 1] - 
+                                        self.dp[i][j] + 
+                                        matrix[i][j])
+    
+    def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -> int:
+        """
+        Time Complexity: O(1)
+        """
+        return (self.dp[row2 + 1][col2 + 1] - 
+                self.dp[row2 + 1][col1] - 
+                self.dp[row1][col2 + 1] + 
+                self.dp[row1][col1])
+```
+
+## 5. Advanced Search Algorithms
+
+### Search in Rotated Sorted Array
+```python
+def search_rotated(nums: list, target: int) -> int:
+    """
+    Time Complexity: O(log n)
+    Space Complexity: O(1)
+    """
+    if not nums:
+        return -1
+        
+    left, right = 0, len(nums) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        
+        if nums[mid] == target:
+            return mid
+        
+        # Left half is sorted
+        if nums[left] <= nums[mid]:
+            if nums[left] <= target < nums[mid]:
+                right = mid - 1
+            else:
+                left = mid + 1
+        # Right half is sorted
+        else:
+            if nums[mid] < target <= nums[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+    
+    return -1
+```
+
+### Find Minimum in Rotated Sorted Array
+```python
+def find_min_rotated(nums: list) -> int:
+    """
+    Time Complexity: O(log n)
+    Space Complexity: O(1)
+    """
+    left, right = 0, len(nums) - 1
+    
+    while left < right:
+        mid = (left + right) // 2
+        
+        if nums[mid] > nums[right]:
+            left = mid + 1
+        else:
+            right = mid
+    
+    return nums[left]
+```

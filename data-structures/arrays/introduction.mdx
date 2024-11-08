@@ -1,0 +1,218 @@
+---
+title: "Introduction"
+description: "Understanding arrays as fundamental data structures in computer science"
+---
+
+<Note>
+  Arrays are the foundation of many complex data structures. Understanding
+  arrays thoroughly is crucial for both coding interviews and practical software
+  development.
+</Note>
+
+## What is an Array?
+
+
+An array is a linear data structure that stores elements of the same data type in contiguous memory locations. Think of it as a collection of items stored at continuous memory locations.
+
+<CodeGroup>
+
+```python Python
+# Integer array
+numbers = [1, 2, 3, 4, 5]
+
+# String array
+fruits = ["apple", "banana", "orange"]
+
+# Accessing elements
+first_number = numbers[0]  # Returns 1
+second_fruit = fruits[1]   # Returns "banana"
+```
+
+```javascript JavaScript
+// Integer array
+const numbers = [1, 2, 3, 4, 5];
+
+// String array
+const fruits = ["apple", "banana", "orange"];
+
+// Accessing elements
+const firstNumber = numbers[0]; // Returns 1
+const secondFruit = fruits[1]; // Returns "banana"
+```
+
+</CodeGroup>
+
+## Types of Arrays
+
+### 1. One-Dimensional Arrays
+
+The most basic type of array, storing elements in a linear sequence.
+
+```python
+# 1D Array
+simple_array = [1, 2, 3, 4, 5]
+```
+
+### 2. Multi-Dimensional Arrays
+
+Arrays that store elements in a table-like format with rows and columns.
+
+<Frame>
+  <img src="/api/placeholder/400/200" alt="2D Array Visualization" />
+</Frame>
+
+```python
+# 2D Array (Matrix)
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+```
+
+## Basic Operations
+
+<CardGroup cols={2}>
+  <Card title="Access" icon="arrow-pointer">
+    Retrieving an element at a specific index. Time Complexity: O(1)
+  </Card>
+  <Card title="Insertion" icon="plus">
+    Adding an element at a specific position. Time Complexity: O(n)
+  </Card>
+  <Card title="Deletion" icon="trash">
+    Removing an element from a specific position. Time Complexity: O(n)
+  </Card>
+  <Card title="Search" icon="magnifying-glass">
+    Finding an element in the array. Time Complexity: O(n)
+  </Card>
+</CardGroup>
+
+### Implementation Examples
+
+<CodeGroup>
+
+```python Python
+def array_operations():
+    # Initialize array
+    arr = [1, 2, 3, 4, 5]
+
+    # Access - O(1)
+    element = arr[0]
+
+    # Insertion - O(n)
+    arr.insert(2, 10)  # Insert 10 at index 2
+
+    # Deletion - O(n)
+    arr.pop(2)  # Remove element at index 2
+
+    # Search - O(n)
+    index = arr.index(4)  # Find index of element 4
+```
+
+```javascript JavaScript
+function arrayOperations() {
+  // Initialize array
+  let arr = [1, 2, 3, 4, 5];
+
+  // Access - O(1)
+  let element = arr[0];
+
+  // Insertion - O(n)
+  arr.splice(2, 0, 10); // Insert 10 at index 2
+
+  // Deletion - O(n)
+  arr.splice(2, 1); // Remove element at index 2
+
+  // Search - O(n)
+  let index = arr.indexOf(4); // Find index of element 4
+}
+```
+
+</CodeGroup>
+
+## Memory Representation
+
+Arrays are stored in contiguous memory locations, which means all elements are stored one after another in memory.
+
+<Frame>
+  <img src="/api/placeholder/600/200" alt="Array Memory Representation" />
+</Frame>
+
+### Memory Calculation
+
+<Card title="Memory Usage Formula">
+  Total Memory = Size of Each Element × Number of Elements Example: - Integer
+  Array (4 bytes each) with 5 elements - Total Memory = 4 × 5 = 20 bytes
+</Card>
+
+## Time Complexity
+
+<AccordionGroup>
+  <Accordion title="Access Operations">
+    - Random Access: O(1) - Sequential Access: O(n)
+  </Accordion>
+  <Accordion title="Search Operations">
+    - Linear Search: O(n) - Binary Search (sorted array): O(log n)
+  </Accordion>
+  <Accordion title="Insertion Operations">
+    - At beginning: O(n) - At end: O(1) - At specific index: O(n)
+  </Accordion>
+  <Accordion title="Deletion Operations">
+    - From beginning: O(n) - From end: O(1) - From specific index: O(n)
+  </Accordion>
+</AccordionGroup>
+
+## Advantages and Disadvantages
+
+### Advantages
+
+<Check>Random access in O(1) time</Check>
+<Check>Cache-friendly due to memory locality</Check>
+<Check>Simple and easy to use</Check>
+<Check>Base for many other data structures</Check>
+
+### Disadvantages
+
+<Cross>Fixed size (in static arrays)</Cross>
+<Cross>Insertion and deletion are expensive</Cross>
+<Cross>Wasted memory if size is overestimated</Cross>
+<Cross>Contiguous memory requirement</Cross>
+
+## Common Applications
+
+<CardGroup cols={2}>
+  <Card title="Data Storage" icon="database">
+    Storing collections of similar items like user information, scores, etc.
+  </Card>
+  <Card title="Matrix Operations" icon="table-cells">
+    Used in graphics, games, and scientific calculations.
+  </Card>
+  <Card title="Buffer" icon="circle-half-stroke">
+    Implementing buffers for various system operations.
+  </Card>
+  <Card title="Look-up Tables" icon="table">
+    Creating fast look-up tables for data processing.
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+### Do's
+
+- Use arrays when you need constant-time access
+- Pre-allocate space if size is known
+- Consider using dynamic arrays for flexible size
+- Use proper error handling for index access
+
+### Don'ts
+
+- Don't use arrays for frequent insertions/deletions
+- Avoid oversizing static arrays
+- Don't ignore index out of bounds checks
+- Don't mix different data types (in typed languages)
+
+<Note>
+  Remember: Arrays are fundamental to computer science and form the basis for
+  many other data structures. Understanding arrays thoroughly will help you
+  master more complex data structures and algorithms.
+</Note>

@@ -1,0 +1,785 @@
+## Core Implementation
+
+### Binary Tree
+```python
+class TreeNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+
+class BinaryTree:
+    def __init__(self):
+        self.root = None
+    
+    def insert(self, val):
+        if not self.root:
+            self.root = TreeNode(val)
+            return
+        
+        queue = [self.root]
+        while queue:
+            node = queue.pop(0)
+            if not node.left:
+                node.left = TreeNode(val)
+                return
+            if not node.right:
+                node.right = TreeNode(val)
+                return
+            queue.append(node.left)
+            queue.append(node.right)
+```
+
+### Binary Search Tree (BST)
+```python
+class BST:
+    def __init__(self):
+        self.root = None
+    
+    def insert(self, val):
+        if not self.root:
+            self.root = TreeNode(val)
+            return
+        
+        current = self.root
+        while True:
+            if val < current.val:
+                if not current.left:
+                    current.left = TreeNode(val)
+                    return
+                current = current.left
+            else:
+                if not current.right:
+                    current.right = TreeNode(val)
+                    return
+                current = current.right
+    
+    def search(self, val):
+        current = self.root
+        while current:
+            if val == current.val:
+                return current
+            if val < current.val:
+                current = current.left
+            else:
+                current = current.right
+        return None
+    
+    def delete(self, val):
+        self.root = self._delete_recursive(self.root, val)
+    
+    def _delete_recursive(self, root, val):
+        if not root:
+            return None
+        
+        if val < root.val:
+            root.left = self._delete_recursive(root.left, val)
+        elif val > root.val:
+            root.right = self._delete_recursive(root.right, val)
+        else:
+            if not root.left:
+                return root.right
+            if not root.right:
+                return root.left
+            
+            # Node with two children
+            min_node = self._find_min(root.right)
+            root.val = min_node.val
+            root.right = self._delete_recursive(root.right, min_node.val)
+        
+        return root
+    
+    def _find_min(self, node):
+        current = node
+        while current.left:
+            current = current.left
+        return current
+```
+
+## Implementation Variations
+
+### 1. AVL Tree (Self-balancing BST)
+```python
+class AVLNode(TreeNode):
+    def __init__(self, val=0):
+        super().__init__(val)
+        self.height = 1
+
+class AVLTree:
+    def __init__(self):
+        self.root = None
+    
+    def height(self, node):
+        if not node:
+            return 0
+        return node.height
+    
+    def balance_factor(self, node):
+        if not node:
+            return 0
+        return self.height(node.left) - self.height(node.right)
+    
+    def update_height(self, node):
+        if not node:
+            return
+        node.height = 1 + max(self.height(node.left), 
+                            self.height(node.right))
+    
+    def rotate_right(self, y):
+        x = y.left
+        T2 = x.right
+        x.right = y
+        y.left = T2
+        y.height = 1 + max(self.height(y.left), self.height(y.right))
+        x.height = 1 + max(self.height(x.left), self.height(x.right))
+        return x
+    
+    def rotate_left(self, x):
+        y = x.right
+        T2 = y.left
+        y.left = x
+        x.right = T2
+        x.height = 1 + max(self.height(x.left), self.height(x.right))
+        y.height = 1 + max(self.height(y.left), self.height(y.right))
+        return y
+    
+    def insert(self, val):
+        self.root = self._insert_recursive(self.root, val)
+    
+    def _insert_recursive(self, node, val):
+        if not node:
+            return AVLNode(val)
+        
+        if val < node.val:
+            node.left = self._insert_recursive(node.left, val)
+        else:
+            node.right = self._insert_recursive(node.right, val)
+        
+        node.height = 1 + max(self.height(node.left), 
+                            self.height(node.right))
+        
+        balance = self.balance_factor(node)
+        
+        # Left Left Case
+        if balance > 1 and val < node.left.val:
+            return self.rotate_right(node)
+        
+        # Right Right Case
+        if balance < -1 and val > node.right.val:
+            return self.rotate_left(node)
+        
+        # Left Right Case
+        if balance > 1 and val > node.left.val:
+            node.left = self.rotate_left(node.left)
+            return self.rotate_right(node)
+        
+        # Right Left Case
+        if balance < -1 and val < node.right.val:
+            node.right = self.rotate_right(node.right)
+            return self.rotate_left(node)
+        
+        return node
+```
+
+### 2. Red-Black Tree
+```python
+class Color:
+    RED = "RED"
+    BLACK = "BLACK"
+
+class RBNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.parent = None
+        self.color = Color.RED
+
+class RedBlackTree:
+    def __init__(self):
+        self.NIL = RBNode(None)
+        self.NIL.color = Color.BLACK
+        self.root = self.NIL
+    
+    def left_rotate(self, x):
+        y = x.right
+        x.right = y.left
+        if y.left != self.NIL:
+            y.left.parent = x
+        y.parent = x.parent
+        if x.parent == None:
+            self.root = y
+        elif x == x.parent.left:
+            x.parent.left = y
+        else:
+            x.parent.right = y
+        y.left = x
+        x.parent = y
+    
+    def insert(self, val):
+        node = RBNode(val)
+        node.left = self.NIL
+        node.right = self.NIL
+        
+        y = None
+        x = self.root
+        
+        while x != self.NIL:
+            y = x
+            if node.val < x.val:
+                x = x.left
+            else:
+                x = x.right
+        
+        node.parent = y
+        if y == None:
+            self.root = node
+        elif node.val < y.val:
+            y.left = node
+        else:
+            y.right = node
+        
+        self._fix_insert(node)
+    
+    def _fix_insert(self, k):
+        while k.parent and k.parent.color == Color.RED:
+            if k.parent == k.parent.parent.right:
+                u = k.parent.parent.left
+                if u.color == Color.RED:
+                    u.color = Color.BLACK
+                    k.parent.color = Color.BLACK
+                    k.parent.parent.color = Color.RED
+                    k = k.parent.parent
+                else:
+                    if k == k.parent.left:
+                        k = k.parent
+                        self.right_rotate(k)
+                    k.parent.color = Color.BLACK
+                    k.parent.parent.color = Color.RED
+                    self.left_rotate(k.parent.parent)
+            else:
+                u = k.parent.parent.right
+                if u.color == Color.RED:
+                    u.color = Color.BLACK
+                    k.parent.color = Color.BLACK
+                    k.parent.parent.color = Color.RED
+                    k = k.parent.parent
+                else:
+                    if k == k.parent.right:
+                        k = k.parent
+                        self.left_rotate(k)
+                    k.parent.color = Color.BLACK
+                    k.parent.parent.color = Color.RED
+                    self.right_rotate(k.parent.parent)
+            if k == self.root:
+                break
+        self.root.color = Color.BLACK
+```
+
+## Time Complexities
+
+| Operation | Binary Tree | BST (avg) | BST (worst) | AVL Tree | Red-Black Tree |
+|-----------|------------|-----------|-------------|-----------|----------------|
+| Insert    | O(n)       | O(log n)  | O(n)        | O(log n)  | O(log n)       |
+| Delete    | O(n)       | O(log n)  | O(n)        | O(log n)  | O(log n)       |
+| Search    | O(n)       | O(log n)  | O(n)        | O(log n)  | O(log n)       |
+| Min/Max   | O(n)       | O(log n)  | O(n)        | O(log n)  | O(log n)       |
+| Traverse  | O(n)       | O(n)      | O(n)        | O(n)      | O(n)           |
+| Height    | O(1)       | O(1)      | O(1)        | O(1)      | O(1)           |
+
+## Space Complexities
+
+| Implementation    | Space Complexity | Additional Notes                          |
+|------------------|------------------|------------------------------------------|
+| Binary Tree      | O(n)            | Linear space for nodes                   |
+| BST              | O(n)            | Can be unbalanced                        |
+| AVL Tree         | O(n)            | Additional height field per node         |
+| Red-Black Tree   | O(n)            | Additional color field per node          |
+
+## Common Data Structure Patterns
+
+1. Tree Traversals
+   - Inorder (BST gives sorted order)
+   - Preorder (Copying/Serializing trees)
+   - Postorder (Deletion)
+   - Level-order (BFS)
+
+2. Path Problems
+   - Path sum
+   - Longest path
+   - Path with maximum sum
+
+3. Tree Construction
+   - From traversal sequences
+   - Balanced tree from sorted array
+   - Clone/Copy trees
+
+4. Tree Properties
+   - Height/Depth calculations
+   - Balance checking
+   - Symmetry checking
+
+5. Tree Comparison
+   - Same tree
+   - Subtree
+   - Mirror trees
+
+6. Ancestor Problems
+   - Lowest Common Ancestor
+   - All ancestors of a node
+   - Distance between nodes
+
+## Edge Cases to Consider
+
+1. Empty Tree
+```python
+if not self.root:
+    return None
+```
+
+2. Single Node
+```python
+if not root.left and not root.right:
+    return root.val
+```
+
+3. Unbalanced Tree
+```python
+def is_balanced(self, root):
+    if not root:
+        return True
+    left_height = self.height(root.left)
+    right_height = self.height(root.right)
+    return abs(left_height - right_height) <= 1
+```
+
+4. Duplicate Values
+```python
+# Handle in BST insert
+if val == current.val:
+    # Either update count or handle as needed
+    current.count += 1
+    return
+```
+
+## Optimization Techniques
+
+1. Height Caching
+```python
+class OptimizedNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.height = 1  # Cache height
+        self.size = 1    # Cache subtree size
+```
+
+2. Parent Pointer
+```python
+class ParentNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.parent = None  # Quick access to parent
+```
+
+3. Level Linking
+```python
+class LevelLinkedNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.next = None  # Same level link
+```
+
+## Memory Management
+
+1. Tree Cleanup
+```python
+def clear_tree(self, root):
+    if not root:
+        return
+    self.clear_tree(root.left)
+    self.clear_tree(root.right)
+    root.left = None
+    root.right = None
+    root.val = None
+```
+
+2. Memory Pool
+```python
+class NodePool:
+    def __init__(self, size=1000):
+        self.pool = [TreeNode() for _ in range(size)]
+        self.available = list(range(size))
+    
+    def get_node(self, val):
+        if self.available:
+            idx = self.available.pop()
+            node = self.pool[idx]
+            node.val = val
+            return node
+        return TreeNode(val)
+```
+
+## Performance Considerations
+
+1. Iterative vs Recursive
+```python
+# Iterative (more memory efficient)
+def inorder_iterative(self, root):
+    stack = []
+    current = root
+    while stack or current:
+        while current:
+            stack.append(current)
+            current = current.left
+        current = stack.pop()
+        yield current.val
+        current = current.right
+```
+
+2. Balanced Tree Maintenance
+```python
+def rebalance(self, root):
+    # Rebalance after multiple operations
+    values = []
+    def inorder(node):
+        if not node:
+            return
+        inorder(node.left)
+        values.append(node.val)
+        inorder(node.right)
+    
+    inorder(root)
+    return self.sorted_array_to_bst(values)
+
+def sorted_array_to_bst(self, nums):
+    if not nums:
+        return None
+    mid = len(nums) // 2
+    root = TreeNode(nums[mid])
+    root.left = self.sorted_array_to_bst(nums[:mid])
+    root.right = self.sorted_array_to_bst(nums[mid + 1:])
+    return root
+```
+
+## Common Pitfalls
+
+1. Incorrect Balance Handling
+```python
+# Wrong
+def is_balanced(self, root):
+    if not root:
+        return True
+    return abs(height(root.left) - height(root.right)) <= 1
+
+# Correct
+def is_balanced(self, root):
+    if not root:
+        return True
+    return (abs(height(root.left) - height(root.right)) <= 1 and
+            self.is_balanced(root.left) and
+            self.is_balanced(root.right))
+```
+
+2. Memory Leaks in Deletion
+```python
+# Memory leak
+def delete(self, node):
+    if node.right:
+        node.val = successor.val
+        node.right = None  # Lost reference to rest of subtree
+
+# Correct
+def delete(self, node):
+    if node.right:
+        successor = self.find_min(node.right)
+        node.val = successor.val
+        node.right = self._delete_recursive(node.right, successor.val)
+```
+
+3. Incorrect Traversal
+```python
+# Wrong (infinite loop possible)
+def inorder(self, root):
+    if root:
+        self.inorder(root.left)
+        print(root.val)
+        self.inorder(root.right)
+        root = root.right  # Unnecessary and dangerous
+
+# Correct
+def inorder(self, root):
+    if root:
+        self.inorder(root.left)
+        print(root.val)
+        self.inorder(root.right)
+```
+
+4. Reference Issues in Tree Construction
+```python
+# Wrong
+def build_tree(self, inorder):
+    if not inorder:
+        return None
+    root = TreeNode(inorder[len(inorder)//2])
+    root.left = root.right = TreeNode(None)  # Wrong: same reference
+
+# Correct
+def build_tree(self, inorder):
+    if not inorder:
+        return None
+    root = TreeNode(inorder[len(inorder)//2])
+    root.left = self.build_tree(inorder[:len(inorder)//2])
+    root.right = self.build_tree(inorder[len(inorder)//2 + 1:])
+    return root
+```
+
+5. Incorrect BST Validation
+```python
+# Wrong: doesn't check subtrees
+def is_bst(self, root):
+    if not root:
+        return True
+    if root.left and root.left.val > root.val:
+        return False
+    if root.right and root.right.val < root.val:
+        return False
+    return True
+
+# Correct
+def is_bst(self, root, min_val=float('-inf'), max_val=float('inf')):
+    if not root:
+        return True
+    if root.val <= min_val or root.val >= max_val:
+        return False
+    return (self.is_bst(root.left, min_val, root.val) and
+            self.is_bst(root.right, root.val, max_val))
+```
+
+## Advanced Tree Operations
+
+### 1. Tree Serialization
+```python
+class Serializer:
+    def serialize(self, root):
+        if not root:
+            return "null"
+        return f"{root.val},{self.serialize(root.left)},{self.serialize(root.right)}"
+    
+    def deserialize(self, data):
+        def dfs():
+            val = next(values)
+            if val == "null":
+                return None
+            node = TreeNode(int(val))
+            node.left = dfs()
+            node.right = dfs()
+            return node
+        
+        values = iter(data.split(','))
+        return dfs()
+```
+
+### 2. Range Operations in BST
+```python
+def range_query(self, root, low, high):
+    result = []
+    def inorder(node):
+        if not node:
+            return
+        if node.val > low:
+            inorder(node.left)
+        if low <= node.val <= high:
+            result.append(node.val)
+        if node.val < high:
+            inorder(node.right)
+    
+    inorder(root)
+    return result
+```
+
+### 3. Tree Iterator
+```python
+class BSTIterator:
+    def __init__(self, root):
+        self.stack = []
+        self._leftmost_inorder(root)
+    
+    def _leftmost_inorder(self, root):
+        while root:
+            self.stack.append(root)
+            root = root.left
+    
+    def next(self):
+        topmost_node = self.stack.pop()
+        if topmost_node.right:
+            self._leftmost_inorder(topmost_node.right)
+        return topmost_node.val
+    
+    def hasNext(self):
+        return len(self.stack) > 0
+```
+
+## Interview-Specific Patterns
+
+### 1. Tree Path Problems
+```python
+def find_paths(self, root, target):
+    def dfs(node, remaining, path):
+        if not node:
+            return
+        
+        path.append(node.val)
+        if not node.left and not node.right and remaining == node.val:
+            result.append(path[:])
+        
+        dfs(node.left, remaining - node.val, path)
+        dfs(node.right, remaining - node.val, path)
+        path.pop()
+    
+    result = []
+    dfs(root, target, [])
+    return result
+```
+
+### 2. Tree View Problems
+```python
+def right_view(self, root):
+    if not root:
+        return []
+    
+    result = []
+    queue = deque([(root, 0)])
+    max_level = -1
+    
+    while queue:
+        node, level = queue.popleft()
+        if level > max_level:
+            result.append(node.val)
+            max_level = level
+        
+        if node.right:
+            queue.append((node.right, level + 1))
+        if node.left:
+            queue.append((node.left, level + 1))
+    
+    return result
+```
+
+### 3. Lowest Common Ancestor
+```python
+def lca(self, root, p, q):
+    if not root or root == p or root == q:
+        return root
+    
+    left = self.lca(root.left, p, q)
+    right = self.lca(root.right, p, q)
+    
+    if left and right:
+        return root
+    return left if left else right
+```
+
+## Advanced Optimization Techniques
+
+### 1. Thread Binary Tree
+```python
+class ThreadNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.is_thread = False  # Right pointer is thread
+
+class ThreadedBinaryTree:
+    def __init__(self):
+        self.root = None
+    
+    def inorder(self):
+        current = self._leftmost(self.root)
+        while current:
+            yield current.val
+            current = self._successor(current)
+    
+    def _leftmost(self, node):
+        if not node:
+            return None
+        while node.left:
+            node = node.left
+        return node
+    
+    def _successor(self, node):
+        if node.is_thread:
+            return node.right
+        return self._leftmost(node.right)
+```
+
+### 2. B-Tree Operations
+```python
+class BTreeNode:
+    def __init__(self, leaf=True):
+        self.leaf = leaf
+        self.keys = []
+        self.children = []
+
+class BTree:
+    def __init__(self, t):
+        self.root = BTreeNode()
+        self.t = t  # Minimum degree
+    
+    def search(self, k, node=None):
+        node = node or self.root
+        i = 0
+        while i < len(node.keys) and k > node.keys[i]:
+            i += 1
+        if i < len(node.keys) and k == node.keys[i]:
+            return (node, i)
+        if node.leaf:
+            return None
+        return self.search(k, node.children[i])
+```
+
+### 3. Segment Tree
+```python
+class SegmentTree:
+    def __init__(self, arr):
+        self.n = len(arr)
+        self.tree = [0] * (4 * self.n)
+        self._build(arr, 0, 0, self.n - 1)
+    
+    def _build(self, arr, node, start, end):
+        if start == end:
+            self.tree[node] = arr[start]
+            return
+        
+        mid = (start + end) // 2
+        self._build(arr, 2 * node + 1, start, mid)
+        self._build(arr, 2 * node + 2, mid + 1, end)
+        self.tree[node] = self.tree[2 * node + 1] + self.tree[2 * node + 2]
+    
+    def query(self, left, right):
+        def _query(node, start, end, l, r):
+            if start > end or start > r or end < l:
+                return 0
+            if l <= start and end <= r:
+                return self.tree[node]
+            
+            mid = (start + end) // 2
+            return (_query(2 * node + 1, start, mid, l, r) +
+                    _query(2 * node + 2, mid + 1, end, l, r))
+        
+        return _query(0, 0, self.n - 1, left, right)
+```
+
+These advanced implementations and patterns are commonly tested in interviews at top tech companies. Key points to remember:
+
+1. Understand the trade-offs between different tree implementations
+2. Know how to implement basic and advanced tree operations efficiently
+3. Be familiar with common tree patterns and their applications
+4. Practice handling edge cases and corner scenarios
+5. Focus on both recursive and iterative solutions

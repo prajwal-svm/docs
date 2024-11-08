@@ -1,0 +1,475 @@
+## Core Implementation
+
+### Basic Binary Tree
+```python
+class TreeNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+
+class BinaryTree:
+    def __init__(self):
+        self.root = None
+    
+    # Level-order insertion
+    def insert(self, val):
+        if not self.root:
+            self.root = TreeNode(val)
+            return
+        
+        queue = [self.root]
+        while queue:
+            node = queue.pop(0)
+            if not node.left:
+                node.left = TreeNode(val)
+                return
+            if not node.right:
+                node.right = TreeNode(val)
+                return
+            queue.append(node.left)
+            queue.append(node.right)
+    
+    # Traversals
+    def inorder(self, root):
+        if not root:
+            return
+        self.inorder(root.left)
+        print(root.val, end=' ')
+        self.inorder(root.right)
+    
+    def preorder(self, root):
+        if not root:
+            return
+        print(root.val, end=' ')
+        self.preorder(root.left)
+        self.preorder(root.right)
+    
+    def postorder(self, root):
+        if not root:
+            return
+        self.postorder(root.left)
+        self.postorder(root.right)
+        print(root.val, end=' ')
+    
+    def level_order(self):
+        if not self.root:
+            return []
+        
+        result = []
+        queue = [self.root]
+        
+        while queue:
+            level = []
+            level_size = len(queue)
+            
+            for _ in range(level_size):
+                node = queue.pop(0)
+                level.append(node.val)
+                
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            
+            result.append(level)
+        
+        return result
+```
+
+## Implementation Variations
+
+### 1. Complete Binary Tree
+```python
+class CompleteBinaryTree:
+    def __init__(self):
+        self.root = None
+        self.size = 0
+    
+    def insert(self, val):
+        self.size += 1
+        if not self.root:
+            self.root = TreeNode(val)
+            return
+        
+        # Convert size to binary and use it as path
+        binary = bin(self.size)[3:]  # Skip '0b1'
+        node = self.root
+        
+        for bit in binary[:-1]:
+            if bit == '0':
+                node = node.left
+            else:
+                node = node.right
+        
+        if binary[-1] == '0':
+            node.left = TreeNode(val)
+        else:
+            node.right = TreeNode(val)
+```
+
+### 2. Perfect Binary Tree
+```python
+class PerfectBinaryTree:
+    def __init__(self):
+        self.root = None
+    
+    def build_perfect_tree(self, height):
+        def build(level):
+            if level == height:
+                return None
+            node = TreeNode(0)  # Value can be customized
+            node.left = build(level + 1)
+            node.right = build(level + 1)
+            return node
+        
+        self.root = build(0)
+```
+
+### 3. Threaded Binary Tree
+```python
+class ThreadedNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.is_threaded = False
+
+class ThreadedBinaryTree:
+    def __init__(self):
+        self.root = None
+    
+    def inorder_successor(self, node):
+        if not node:
+            return None
+        
+        if node.is_threaded:
+            return node.right
+        
+        node = node.right
+        while node and node.left:
+            node = node.left
+        return node
+```
+
+## Time Complexities
+
+| Operation          | Perfect/Complete | Skewed    | Threaded  | Average   |
+|-------------------|------------------|-----------|-----------|-----------|
+| Insert            | O(log n)         | O(n)      | O(n)      | O(n)      |
+| Search            | O(log n)         | O(n)      | O(n)      | O(n)      |
+| Delete            | O(log n)         | O(n)      | O(n)      | O(n)      |
+| Inorder           | O(n)             | O(n)      | O(n)      | O(n)      |
+| Preorder          | O(n)             | O(n)      | O(n)      | O(n)      |
+| Postorder         | O(n)             | O(n)      | O(n)      | O(n)      |
+| Level Order       | O(n)             | O(n)      | O(n)      | O(n)      |
+| Height            | O(log n)         | O(n)      | O(n)      | O(n)      |
+
+## Space Complexities
+
+| Implementation    | Space Complexity | Additional Notes                          |
+|------------------|------------------|------------------------------------------|
+| Perfect          | O(2^h - 1)       | h is height, all levels filled           |
+| Complete         | O(n)             | Last level filled from left to right     |
+| Skewed           | O(n)             | Degenerates to linked list               |
+| Threaded         | O(n)             | Extra space for thread pointers          |
+
+## Common Data Structure Patterns
+
+1. Tree Traversal Patterns
+   - DFS (Inorder, Preorder, Postorder)
+   - BFS (Level Order)
+   - Vertical Order
+   - Boundary Traversal
+
+2. Path Patterns
+   - Root to Leaf Paths
+   - Maximum Path Sum
+   - Path with Given Sum
+   - Longest Path
+
+3. View Patterns
+   - Left/Right View
+   - Top/Bottom View
+   - Vertical View
+
+4. Level-based Patterns
+   - Level Order
+   - Level Sum
+   - Level Average
+   - Connect Level Nodes
+
+5. Tree Construction Patterns
+   - From Traversal Arrays
+   - From Level Order
+   - Serialization/Deserialization
+
+6. Tree Property Patterns
+   - Height/Depth
+   - Diameter
+   - Balance
+   - Symmetry
+
+## Edge Cases to Consider
+
+1. Empty Tree
+```python
+if not root:
+    return None
+```
+
+2. Single Node
+```python
+if not root.left and not root.right:
+    return root.val
+```
+
+3. Full/Complete/Perfect Checks
+```python
+def is_perfect(self, root):
+    level = 0
+    current = root
+    while current.left:
+        level += 1
+        current = current.left
+    
+    return self._is_perfect_recursive(root, level, 0)
+
+def _is_perfect_recursive(self, root, level, current_level):
+    if not root:
+        return True
+    
+    if not root.left and not root.right:
+        return level == current_level
+    
+    if not root.left or not root.right:
+        return False
+    
+    return (self._is_perfect_recursive(root.left, level, current_level + 1) and
+            self._is_perfect_recursive(root.right, level, current_level + 1))
+```
+
+## Optimization Techniques
+
+1. Node Cache
+```python
+class CachedNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.height = 1
+        self.size = 1
+        self.depth = 0
+```
+
+2. Level Linking
+```python
+class LevelLinkedNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.next = None  # Points to next node in same level
+
+def connect_levels(self, root):
+    if not root:
+        return
+    
+    current = root
+    while current.left:
+        temp = current
+        while temp:
+            temp.left.next = temp.right
+            if temp.next:
+                temp.right.next = temp.next.left
+            temp = temp.next
+        current = current.left
+```
+
+3. Parent Pointers
+```python
+class NodeWithParent:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.parent = None
+
+def insert_with_parent(self, parent, val):
+    node = NodeWithParent(val)
+    node.parent = parent
+    return node
+```
+
+## Memory Management
+
+1. Node Pool
+```python
+class NodePool:
+    def __init__(self, size=1000):
+        self.pool = [TreeNode(0) for _ in range(size)]
+        self.available = set(range(size))
+    
+    def get_node(self, val):
+        if self.available:
+            idx = self.available.pop()
+            node = self.pool[idx]
+            node.val = val
+            node.left = node.right = None
+            return node
+        return TreeNode(val)
+    
+    def return_node(self, node):
+        if node in self.pool:
+            idx = self.pool.index(node)
+            self.available.add(idx)
+```
+
+2. Tree Cleanup
+```python
+def clear_tree(self, root):
+    if not root:
+        return
+    
+    self.clear_tree(root.left)
+    self.clear_tree(root.right)
+    
+    root.left = None
+    root.right = None
+    root.val = None
+```
+
+## Performance Considerations
+
+1. Iterative vs Recursive Traversals
+```python
+def inorder_iterative(self, root):
+    result = []
+    stack = []
+    current = root
+    
+    while stack or current:
+        while current:
+            stack.append(current)
+            current = current.left
+        
+        current = stack.pop()
+        result.append(current.val)
+        current = current.right
+    
+    return result
+```
+
+2. Level Order Optimization
+```python
+def level_order_optimized(self, root):
+    if not root:
+        return []
+    
+    result = []
+    current_level = [root]
+    
+    while current_level:
+        next_level = []
+        values = []
+        
+        for node in current_level:
+            values.append(node.val)
+            if node.left:
+                next_level.append(node.left)
+            if node.right:
+                next_level.append(node.right)
+        
+        result.append(values)
+        current_level = next_level
+    
+    return result
+```
+
+## Common Pitfalls
+
+1. Incorrect Height Calculation
+```python
+# Wrong
+def height(self, root):
+    if not root:
+        return 0
+    return 1 + max(height(root.left), height(root.right))
+
+# Correct (Empty tree height = -1)
+def height(self, root):
+    if not root:
+        return -1
+    return 1 + max(self.height(root.left), self.height(root.right))
+```
+
+2. Memory Leaks in Deletion
+```python
+# Wrong
+def delete(self, node):
+    if node.left:
+        node = node.left
+    elif node.right:
+        node = node.right
+    else:
+        node = None
+
+# Correct
+def delete(self, node):
+    if node.parent:
+        if node == node.parent.left:
+            node.parent.left = None
+        else:
+            node.parent.right = None
+    node.left = node.right = None
+```
+
+3. Incorrect Level Order Traversal
+```python
+# Wrong (missing level information)
+def level_order_wrong(self, root):
+    if not root:
+        return []
+    
+    result = []
+    queue = [root]
+    
+    while queue:
+        node = queue.pop(0)
+        result.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    
+    return result
+
+# Correct (preserves level information)
+def level_order_correct(self, root):
+    if not root:
+        return []
+    
+    result = []
+    queue = [(root, 0)]
+    current_level = []
+    current_depth = 0
+    
+    while queue:
+        node, depth = queue.pop(0)
+        
+        if depth > current_depth:
+            result.append(current_level)
+            current_level = []
+            current_depth = depth
+        
+        current_level.append(node.val)
+        
+        if node.left:
+            queue.append((node.left, depth + 1))
+        if node.right:
+            queue.append((node.right, depth + 1))
+    
+    result.append(current_level)
+    return result
+```

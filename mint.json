@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Starter Kit",
+  "name": "CodeHQ",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -17,75 +17,387 @@
   },
   "topbarLinks": [
     {
-      "name": "Support",
-      "url": "mailto:hi@mintlify.com"
+      "name": "NeetCode",
+      "url": "https://neetcode.io"
+    },
+    {
+      "name": "TUF+",
+      "url": "https://takeuforward.org"
     }
   ],
   "topbarCtaButton": {
-    "name": "Dashboard",
-    "url": "https://dashboard.mintlify.com"
+    "name": "LeetCode",
+    "url": "https://leetcode.com/"
+  },
+  "primaryTab": {
+    "name": "Home"
   },
   "tabs": [
     {
-      "name": "API Reference",
-      "url": "api-reference"
+      "name": "Python",
+      "url": "python"
+    },
+    {
+      "name": "Javascript",
+      "url": "javascript"
+    },
+    {
+      "name": "Data Structures",
+      "url": "data-structures"
+    },
+    {
+      "name": "Algorithms",
+      "url": "algorithms"
+    },
+    {
+      "name": "System Design",
+      "url": "system-design"
+    },
+    {
+      "name": "Behavioral",
+      "url": "behavioral"
     }
   ],
   "anchors": [
     {
-      "name": "Documentation",
-      "icon": "book-open-cover",
-      "url": "https://mintlify.com/docs"
+      "name": "Blind 75",
+      "icon": "terminal",
+      "url": "https://codehq.pro/blind-75"
     },
     {
-      "name": "Community",
-      "icon": "slack",
-      "url": "https://mintlify.com/community"
+      "name": "Blind 150",
+      "icon": "code",
+      "url": "https://codehq.pro/blind-150"
     },
     {
-      "name": "Blog",
-      "icon": "newspaper",
-      "url": "https://mintlify.com/blog"
+      "name": "Patterns",
+      "icon": "puzzle",
+      "url": "https://codehq.pro/patterns"
     }
   ],
   "navigation": [
     {
       "group": "Get Started",
+      "pages": ["introduction"]
+    },
+    {
+      "group": "Python",
       "pages": [
-        "introduction",
-        "quickstart",
-        "development"
+        "python/python-language",
+        "python/cheatsheet",
+        "python/python-oop"
       ]
     },
     {
-      "group": "Essentials",
+      "group": "Javascript",
       "pages": [
-        "essentials/markdown",
-        "essentials/code",
-        "essentials/images",
-        "essentials/settings",
-        "essentials/navigation",
-        "essentials/reusable-snippets"
+        "javascript/javascript-language",
+        "javascript/cheatsheet",
+        "javascript/javascript-interview"
       ]
     },
     {
-      "group": "API Documentation",
+      "group": "Foundations",
       "pages": [
-        "api-reference/introduction"
+        "data-structures/introduction",
+        "data-structures/complexity-analysis",
+        {
+          "group": "All Data Structures",
+          "pages": [
+            "data-structures/all/array",
+            "data-structures/all/strings",
+            "data-structures/all/linked-list",
+            "data-structures/all/stack",
+            "data-structures/all/queue",
+            "data-structures/all/tree",
+            "data-structures/all/binary-tree",
+            "data-structures/all/binary-search-tree",
+            "data-structures/all/heap",
+            "data-structures/all/hashing",
+            "data-structures/all/graph",
+            "data-structures/all/trie",
+            "data-structures/all/segment-trees",
+            "data-structures/all/disjoint-set-union",
+            "data-structures/all/advanced/binary-indexed-tree",
+            "data-structures/all/advanced/avl-tree",
+            "data-structures/all/advanced/red-black-tree",
+            "data-structures/all/advanced/matrix",
+            "data-structures/all/advanced/advanced-lists",
+            "data-structures/all/advanced/splay-tree",
+            "data-structures/all/advanced/b-tree",
+            "data-structures/all/advanced/kd-tree",
+            "data-structures/all/advanced/treap",
+            "data-structures/all/advanced/interval-tree",
+            "data-structures/all/advanced/lru-cache",
+            "data-structures/all/advanced/suffix-array",
+            "data-structures/all/advanced/suffix-tree",
+            "data-structures/all/advanced/expression-tree",
+            "data-structures/all/advanced/decision-tree"
+          ]
+        }
       ]
     },
     {
-      "group": "Endpoint Examples",
+      "group": "Basics",
       "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
+        "basics/problem-solving-framework",
+        "basics/time-complexity-guide"
       ]
+    },
+    {
+      "group": "Linear Data Structures",
+      "pages": [
+        {
+          "group": "Arrays",
+          "pages": [
+            "data-structures/arrays/static",
+            "data-structures/arrays/dynamic",
+            "data-structures/arrays/array-patterns",
+            "data-structures/arrays/common-problems"
+          ]
+        },
+        {
+          "group": "Linked Lists",
+          "pages": [
+            "data-structures/linked-lists/singly",
+            "data-structures/linked-lists/doubly",
+            "data-structures/linked-lists/circular"
+          ]
+        },
+        {
+          "group": "Stack",
+          "pages": [
+            "data-structures/stack/introduction",
+            "data-structures/stack/implementation-array",
+            "data-structures/stack/implementation-linked-list",
+            {
+              "group": "Applications",
+              "pages": [
+                "data-structures/stack/infix-postfix",
+                "data-structures/stack/expression-evaluation",
+                "data-structures/stack/parentheses-matching",
+                "data-structures/stack/next-greater-element",
+                "data-structures/stack/stock-span",
+                "data-structures/stack/histogram-area"
+              ]
+            },
+            {
+              "group": "Advanced Concepts",
+              "pages": [
+                "data-structures/stack/min-stack",
+                "data-structures/stack/stack-using-queues",
+                "data-structures/stack/sort-stack",
+                "data-structures/stack/multi-stack"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "Queue",
+          "pages": [
+            "data-structures/queue/introduction",
+            "data-structures/queue/implementation-array",
+            "data-structures/queue/implementation-linked-list",
+            {
+              "group": "Types",
+              "pages": [
+                "data-structures/queue/circular-queue",
+                "data-structures/queue/priority-queue",
+                "data-structures/queue/deque",
+                "data-structures/queue/double-ended-queue"
+              ]
+            },
+            {
+              "group": "Applications",
+              "pages": [
+                "data-structures/queue/binary-number-generation",
+                "data-structures/queue/sliding-window-maximum",
+                "data-structures/queue/petrol-pump-problem",
+                "data-structures/queue/queue-using-stacks"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Non-Linear Data Structures",
+      "pages": [
+        {
+          "group": "Trees",
+          "pages": [
+            "data-structures/trees/introduction",
+            {
+              "group": "Binary Trees",
+              "pages": [
+                "data-structures/trees/binary/properties",
+                "data-structures/trees/binary/types",
+                "data-structures/trees/binary/traversal",
+                "data-structures/trees/binary/construction",
+                "data-structures/trees/binary/special-trees",
+                "data-structures/trees/binary/threading",
+                "data-structures/trees/binary/misc-problems"
+              ]
+            },
+            {
+              "group": "Binary Search Trees",
+              "pages": [
+                "data-structures/trees/bst/introduction",
+                "data-structures/trees/bst/operations",
+                "data-structures/trees/bst/balancing",
+                "data-structures/trees/bst/traversal",
+                "data-structures/trees/bst/predecessor-successor",
+                "data-structures/trees/bst/checking-validation"
+              ]
+            },
+            {
+              "group": "Balanced Trees",
+              "pages": [
+                "data-structures/trees/balanced/avl-trees",
+                "data-structures/trees/balanced/red-black-trees",
+                "data-structures/trees/balanced/splay-trees",
+                "data-structures/trees/balanced/b-trees"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "Heaps",
+          "pages": [
+            "data-structures/heaps/introduction",
+            "data-structures/heaps/binary-heap",
+            "data-structures/heaps/binomial-heap",
+            "data-structures/heaps/fibonacci-heap",
+            {
+              "group": "Operations",
+              "pages": [
+                "data-structures/heaps/insertion",
+                "data-structures/heaps/deletion",
+                "data-structures/heaps/heapify",
+                "data-structures/heaps/heap-sort"
+              ]
+            },
+            {
+              "group": "Applications",
+              "pages": [
+                "data-structures/heaps/priority-queue-implementation",
+                "data-structures/heaps/k-sorted-array",
+                "data-structures/heaps/merge-k-sorted",
+                "data-structures/heaps/median-stream"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "Hash Tables",
+          "pages": [
+            "data-structures/hash-tables/introduction",
+            "data-structures/hash-tables/hash-functions",
+            {
+              "group": "Collision Handling",
+              "pages": [
+                "data-structures/hash-tables/chaining",
+                "data-structures/hash-tables/open-addressing",
+                "data-structures/hash-tables/double-hashing"
+              ]
+            },
+            {
+              "group": "Applications",
+              "pages": [
+                "data-structures/hash-tables/frequency-counting",
+                "data-structures/hash-tables/caching",
+                "data-structures/hash-tables/substring-problems",
+                "data-structures/hash-tables/two-sum-variants"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "Graphs",
+          "pages": [
+            "data-structures/graphs/introduction",
+            {
+              "group": "Representation",
+              "pages": [
+                "data-structures/graphs/adjacency-matrix",
+                "data-structures/graphs/adjacency-list",
+                "data-structures/graphs/edge-list"
+              ]
+            },
+            {
+              "group": "Traversal",
+              "pages": [
+                "data-structures/graphs/bfs",
+                "data-structures/graphs/dfs",
+                "data-structures/graphs/applications"
+              ]
+            },
+            {
+              "group": "Advanced Concepts",
+              "pages": [
+                "data-structures/graphs/shortest-path",
+                "data-structures/graphs/minimum-spanning-tree",
+                "data-structures/graphs/topological-sort",
+                "data-structures/graphs/strongly-connected",
+                "data-structures/graphs/cycle-detection",
+                "data-structures/graphs/bipartite"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Advanced Data Structures",
+      "pages": [
+        {
+          "group": "Advanced Trees",
+          "pages": [
+            "data-structures/advanced/trees/segment-trees",
+            "data-structures/advanced/trees/fenwick-trees",
+            "data-structures/advanced/trees/suffix-trees",
+            "data-structures/advanced/trees/trie",
+            "data-structures/advanced/trees/interval-trees",
+            "data-structures/advanced/trees/k-dimensional"
+          ]
+        },
+        {
+          "group": "Advanced Lists",
+          "pages": [
+            "data-structures/advanced/lists/skip-lists",
+            "data-structures/advanced/lists/self-organizing",
+            "data-structures/advanced/lists/xor-linked",
+            "data-structures/advanced/lists/unrolled"
+          ]
+        },
+        {
+          "group": "Specialized Structures",
+          "pages": [
+            "data-structures/advanced/specialized/lru-cache",
+            "data-structures/advanced/specialized/sparse-tables",
+            "data-structures/advanced/specialized/bloom-filters",
+            "data-structures/advanced/specialized/disjoint-sets"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Algorithms",
+      "pages": ["algorithms/introduction", "algorithms/complexity-analysis"]
+    },
+    {
+      "group": "System Design",
+      "pages": [
+        "system-design/introduction",
+        "system-design/system-design-interview"
+      ]
+    },
+    {
+      "group": "Behavioral",
+      "pages": ["behavioral/introduction", "behavioral/behavioral-interview"]
     }
   ],
   "footerSocials": {
-    "x": "https://x.com/mintlify",
-    "github": "https://github.com/mintlify",
-    "linkedin": "https://linkedin.com/company/mintlify"
+    "github": "https://github.com/3-bitz"
   }
 }

@@ -1,0 +1,416 @@
+---
+title: 'Circular Linked List'
+description: 'Complete guide to Circular Linked List implementation and operations'
+---
+
+## Basic Structure
+
+### Singly Circular Linked List
+```python
+class Node:
+    def __init__(self, val=0):
+        self.val = val
+        self.next = None
+
+class CircularLinkedList:
+    def __init__(self):
+        self.head = None
+        self.size = 0
+    
+    def __str__(self):
+        if not self.head:
+            return "Empty List"
+        
+        curr = self.head
+        nodes = [str(curr.val)]
+        curr = curr.next
+        
+        while curr != self.head:
+            nodes.append(str(curr.val))
+            curr = curr.next
+        
+        return ' -> '.join(nodes) + " -> head"
+```
+
+### Doubly Circular Linked List
+```python
+class DoublyNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.next = None
+        self.prev = None
+
+class CircularDoublyLinkedList:
+    def __init__(self):
+        self.head = None
+        self.size = 0
+    
+    def __str__(self):
+        if not self.head:
+            return "Empty List"
+        
+        curr = self.head
+        nodes = [str(curr.val)]
+        curr = curr.next
+        
+        while curr != self.head:
+            nodes.append(str(curr.val))
+            curr = curr.next
+        
+        return ' ⟷ '.join(nodes) + " ⟷ head"
+```
+
+## Insertion Operations
+
+### Singly Circular Linked List
+```python
+def insert_at_beginning(self, val: int) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    new_node = Node(val)
+    self.size += 1
+    
+    if not self.head:
+        new_node.next = new_node
+        self.head = new_node
+        return
+    
+    curr = self.head
+    while curr.next != self.head:
+        curr = curr.next
+    
+    curr.next = new_node
+    new_node.next = self.head
+    self.head = new_node
+
+def insert_at_end(self, val: int) -> None:
+    """
+    Time Complexity: O(n)
+    """
+    new_node = Node(val)
+    self.size += 1
+    
+    if not self.head:
+        new_node.next = new_node
+        self.head = new_node
+        return
+    
+    curr = self.head
+    while curr.next != self.head:
+        curr = curr.next
+    
+    curr.next = new_node
+    new_node.next = self.head
+
+def insert_at_position(self, val: int, position: int) -> None:
+    """
+    Time Complexity: O(n)
+    """
+    if position < 0 or position > self.size:
+        raise ValueError("Invalid position")
+    
+    if position == 0:
+        self.insert_at_beginning(val)
+        return
+    
+    new_node = Node(val)
+    curr = self.head
+    for _ in range(position - 1):
+        curr = curr.next
+    
+    new_node.next = curr.next
+    curr.next = new_node
+    self.size += 1
+```
+
+### Doubly Circular Linked List
+```python
+def insert_at_beginning_doubly(self, val: int) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    new_node = DoublyNode(val)
+    self.size += 1
+    
+    if not self.head:
+        new_node.next = new_node
+        new_node.prev = new_node
+        self.head = new_node
+        return
+    
+    last = self.head.prev
+    new_node.next = self.head
+    new_node.prev = last
+    last.next = new_node
+    self.head.prev = new_node
+    self.head = new_node
+
+def insert_at_end_doubly(self, val: int) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    if not self.head:
+        self.insert_at_beginning_doubly(val)
+        return
+    
+    new_node = DoublyNode(val)
+    last = self.head.prev
+    
+    new_node.next = self.head
+    new_node.prev = last
+    last.next = new_node
+    self.head.prev = new_node
+    self.size += 1
+```
+
+## Deletion Operations
+
+### Singly Circular Linked List
+```python
+def delete_at_beginning(self) -> None:
+    """
+    Time Complexity: O(n)
+    """
+    if not self.head:
+        return
+    
+    if self.head.next == self.head:
+        self.head = None
+        self.size = 0
+        return
+    
+    curr = self.head
+    while curr.next != self.head:
+        curr = curr.next
+    
+    curr.next = self.head.next
+    self.head = self.head.next
+    self.size -= 1
+
+def delete_at_end(self) -> None:
+    """
+    Time Complexity: O(n)
+    """
+    if not self.head:
+        return
+    
+    if self.head.next == self.head:
+        self.head = None
+        self.size = 0
+        return
+    
+    curr = self.head
+    while curr.next.next != self.head:
+        curr = curr.next
+    
+    curr.next = self.head
+    self.size -= 1
+
+def delete_at_position(self, position: int) -> None:
+    """
+    Time Complexity: O(n)
+    """
+    if not self.head or position < 0 or position >= self.size:
+        return
+    
+    if position == 0:
+        self.delete_at_beginning()
+        return
+    
+    curr = self.head
+    for _ in range(position - 1):
+        curr = curr.next
+    
+    curr.next = curr.next.next
+    self.size -= 1
+```
+
+### Doubly Circular Linked List
+```python
+def delete_at_beginning_doubly(self) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    if not self.head:
+        return
+    
+    if self.head.next == self.head:
+        self.head = None
+        self.size = 0
+        return
+    
+    last = self.head.prev
+    self.head = self.head.next
+    self.head.prev = last
+    last.next = self.head
+    self.size -= 1
+
+def delete_at_end_doubly(self) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    if not self.head:
+        return
+    
+    if self.head.next == self.head:
+        self.head = None
+        self.size = 0
+        return
+    
+    last = self.head.prev
+    last.prev.next = self.head
+    self.head.prev = last.prev
+    self.size -= 1
+```
+
+## Traversal and Search Operations
+
+```python
+def traverse(self) -> None:
+    """
+    Time Complexity: O(n)
+    """
+    if not self.head:
+        return
+    
+    curr = self.head
+    while True:
+        print(curr.val, end=" -> ")
+        curr = curr.next
+        if curr == self.head:
+            break
+    print("head")
+
+def search(self, val: int) -> bool:
+    """
+    Time Complexity: O(n)
+    """
+    if not self.head:
+        return False
+    
+    curr = self.head
+    while True:
+        if curr.val == val:
+            return True
+        curr = curr.next
+        if curr == self.head:
+            break
+    
+    return False
+```
+
+## Split Operations
+
+```python
+def split_into_halves(self):
+    """
+    Split circular list into two halves
+    Time Complexity: O(n)
+    """
+    if not self.head:
+        return None, None
+    
+    # Find the middle using slow and fast pointers
+    slow = fast = self.head
+    while fast.next != self.head and fast.next.next != self.head:
+        slow = slow.next
+        fast = fast.next.next
+    
+    # Create first half
+    second_half = slow.next
+    slow.next = self.head
+    
+    # Create second half
+    curr = second_half
+    while curr.next != self.head:
+        curr = curr.next
+    curr.next = second_half
+    
+    return self.head, second_half
+```
+
+## Utility Functions
+
+```python
+def get_length(self) -> int:
+    """
+    Time Complexity: O(n)
+    """
+    if not self.head:
+        return 0
+    
+    count = 1
+    curr = self.head.next
+    while curr != self.head:
+        count += 1
+        curr = curr.next
+    
+    return count
+
+def is_circular(self) -> bool:
+    """
+    Check if list is circular
+    Time Complexity: O(n)
+    """
+    if not self.head:
+        return False
+    
+    curr = self.head.next
+    while curr and curr != self.head:
+        curr = curr.next
+    
+    return curr == self.head
+
+def detect_and_remove_loop(self) -> None:
+    """
+    Detect and remove loop if exists
+    Time Complexity: O(n)
+    """
+    if not self.head:
+        return
+    
+    # Find meeting point
+    slow = fast = self.head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            break
+    
+    # No loop found
+    if not fast or not fast.next:
+        return
+    
+    # Find loop start
+    slow = self.head
+    while slow.next != fast.next:
+        slow = slow.next
+        fast = fast.next
+    
+    # Make it circular
+    fast.next = self.head
+```
+
+## Example Usage
+
+```python
+# Example usage of Circular Linked List
+def main():
+    # Singly Circular
+    clist = CircularLinkedList()
+    clist.insert_at_beginning(1)
+    clist.insert_at_end(2)
+    clist.insert_at_end(3)
+    print("Singly Circular List:", clist)
+    
+    # Doubly Circular
+    dclist = CircularDoublyLinkedList()
+    dclist.insert_at_beginning_doubly(1)
+    dclist.insert_at_end_doubly(2)
+    dclist.insert_at_end_doubly(3)
+    print("Doubly Circular List:", dclist)
+
+if __name__ == "__main__":
+    main()
+```

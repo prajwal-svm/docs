@@ -1,0 +1,363 @@
+# Fenwick Trees (Binary Indexed Trees)
+
+## Core Implementation
+
+### Basic Fenwick Tree
+```python
+class FenwickTree:
+    def __init__(self, n):
+        self.size = n
+        self.tree = [0] * (n + 1)  # 1-based indexing
+    
+    def update(self, index, delta):
+        """Add delta to index i"""
+        index += 1  # Convert to 1-based indexing
+        while index <= self.size:
+            self.tree[index] += delta
+            index += index & (-index)  # Add LSB
+    
+    def prefix_sum(self, index):
+        """Get sum from index 1 to index"""
+        index += 1  # Convert to 1-based indexing
+        total = 0
+        while index > 0:
+            total += self.tree[index]
+            index -= index & (-index)  # Remove LSB
+        return total
+    
+    def range_sum(self, left, right):
+        """Get sum from index left to index right (inclusive)"""
+        return self.prefix_sum(right) - self.prefix_sum(left - 1)
+    
+    def get(self, index):
+        """Get value at index"""
+        return self.range_sum(index, index)
+```
+
+## Implementation Variations
+
+### 1. 2D Fenwick Tree
+```python
+class FenwickTree2D:
+    def __init__(self, n, m):
+        self.n = n
+        self.m = m
+        self.tree = [[0] * (m + 1) for _ in range(n + 1)]
+    
+    def update(self, x, y, delta):
+        x += 1  # Convert to 1-based indexing
+        y += 1
+        i = x
+        while i <= self.n:
+            j = y
+            while j <= self.m:
+                self.tree[i][j] += delta
+                j += j & (-j)
+            i += i & (-i)
+    
+    def prefix_sum(self, x, y):
+        x += 1  # Convert to 1-based indexing
+        y += 1
+        total = 0
+        i = x
+        while i > 0:
+            j = y
+            while j > 0:
+                total += self.tree[i][j]
+                j -= j & (-j)
+            i -= i & (-i)
+        return total
+    
+    def range_sum(self, x1, y1, x2, y2):
+        return (self.prefix_sum(x2, y2) - 
+                self.prefix_sum(x2, y1 - 1) - 
+                self.prefix_sum(x1 - 1, y2) + 
+                self.prefix_sum(x1 - 1, y1 - 1))
+```
+
+### 2. Range Update Point Query Fenwick Tree
+```python
+class RangeUpdateFenwickTree:
+    def __init__(self, n):
+        self.size = n
+        self.tree = [0] * (n + 1)
+        self.tree2 = [0] * (n + 1)  # For handling range updates
+    
+    def _update(self, index, value, tree):
+        while index <= self.size:
+            tree[index] += value
+            index += index & (-index)
+    
+    def range_update(self, left, right, value):
+        """Add value to range [left, right]"""
+        self._update(left + 1, value, self.tree)
+        self._update(right + 2, -value, self.tree)
+        self._update(left + 1, value * left, self.tree2)
+        self._update(right + 2, -value * (right + 1), self.tree2)
+    
+    def _query(self, index, tree):
+        total = 0
+        while index > 0:
+            total += tree[index]
+            index -= index & (-index)
+        return total
+    
+    def get(self, index):
+        """Get value at index"""
+        index += 1
+        return self._query(index, self.tree) * index - self._query(index, self.tree2)
+```
+
+### 3. Order Statistic Tree
+```python
+class OrderStatisticTree:
+    def __init__(self, max_val):
+        self.size = max_val
+        self.tree = [0] * (max_val + 1)
+    
+    def insert(self, value):
+        """Insert a value"""
+        self.update(value, 1)
+    
+    def delete(self, value):
+        """Delete a value"""
+        self.update(value, -1)
+    
+    def update(self, value, delta):
+        while value <= self.size:
+            self.tree[value] += delta
+            value += value & (-value)
+    
+    def find_kth(self, k):
+        """Find kth smallest element"""
+        pos = 0
+        total = 0
+        for i in range(self.size.bit_length() - 1, -1, -1):
+            if pos + (1 << i) <= self.size:
+                if total + self.tree[pos + (1 << i)] < k:
+                    total += self.tree[pos + (1 << i)]
+                    pos += (1 << i)
+        return pos + 1
+```
+
+## Time Complexities
+
+| Operation             | Basic      | 2D          | Range Update | Order Statistic |
+|----------------------|------------|-------------|--------------|-----------------|
+| Point Update         | O(log n)   | O(log n * log m) | O(log n)    | O(log n)        |
+| Range Update         | N/A        | N/A         | O(log n)    | N/A             |
+| Point Query          | O(log n)   | O(log n * log m) | O(log n)    | O(log n)        |
+| Range Query          | O(log n)   | O(log n * log m) | N/A         | O(log n)        |
+| Find Kth            | N/A        | N/A         | N/A         | O(log n)        |
+
+## Space Complexities
+
+| Implementation       | Space Complexity | Additional Notes                          |
+|---------------------|------------------|------------------------------------------|
+| Basic               | O(n)             | Single array                             |
+| 2D                  | O(n*m)           | Matrix representation                    |
+| Range Update        | O(n)             | Two arrays                               |
+| Order Statistic     | O(n)             | Single array                             |
+
+## Common Data Structure Patterns
+
+1. Range Query Operations
+   - Prefix sums
+   - Range sums
+   - Cumulative frequencies
+
+2. Dynamic Updates
+   - Point updates
+   - Range updates
+   - Frequency counting
+
+3. Order Statistics
+   - Kth smallest element
+   - Rank queries
+   - Frequency queries
+
+4. Multi-dimensional Queries
+   - 2D range sums
+   - Rectangle queries
+   - Matrix updates
+
+5. Optimization Problems
+   - Inversions counting
+   - Range minimum queries
+   - Dynamic rank queries
+
+6. Frequency Tables
+   - Count occurrences
+   - Dynamic histograms
+   - Frequency tracking
+
+## Edge Cases to Consider
+
+1. Empty Tree
+```python
+def handle_empty(self):
+    return self.size == 0 or all(v == 0 for v in self.tree[1:])
+```
+
+2. Single Element
+```python
+def handle_single(self):
+    if self.size == 1:
+        return self.tree[1]
+```
+
+3. Range Boundaries
+```python
+def validate_range(self, left, right):
+    if not 0 <= left <= right < self.size:
+        raise ValueError("Invalid range")
+```
+
+## Optimization Techniques
+
+1. Bit Operations
+```python
+class OptimizedFenwickTree:
+    def __init__(self, n):
+        self.size = n
+        self.tree = [0] * (n + 1)
+    
+    def lsb(self, x):
+        return x & (-x)
+    
+    def update(self, index, delta):
+        index += 1
+        while index <= self.size:
+            self.tree[index] += delta
+            index += self.lsb(index)
+```
+
+2. Bulk Updates
+```python
+class BulkUpdateFenwickTree(FenwickTree):
+    def bulk_update(self, updates):
+        # Sort updates by index for better cache utilization
+        updates.sort(key=lambda x: x[0])
+        for index, delta in updates:
+            self.update(index, delta)
+```
+
+## Memory Management
+
+1. Sparse Representation
+```python
+class SparseFenwickTree:
+    def __init__(self):
+        self.tree = {}
+    
+    def update(self, index, delta):
+        while index in self.tree:
+            self.tree[index] += delta
+            index += index & (-index)
+    
+    def prefix_sum(self, index):
+        total = 0
+        while index > 0:
+            total += self.tree.get(index, 0)
+            index -= index & (-index)
+        return total
+```
+
+2. Memory-Efficient Implementation
+```python
+from array import array
+
+class CompactFenwickTree:
+    def __init__(self, n):
+        self.size = n
+        # Use array module for memory efficiency
+        self.tree = array('l', [0] * (n + 1))
+```
+
+## Performance Considerations
+
+1. Cache-Friendly Implementation
+```python
+class CacheFriendlyFenwickTree:
+    def __init__(self, n):
+        self.size = n
+        self.block_size = 64 // 8  # Cache line size
+        self.tree = [0] * (n + 1)
+    
+    def update(self, index, delta):
+        index += 1
+        block = index // self.block_size
+        while index <= self.size:
+            self.tree[index] += delta
+            next_block = (index + (index & (-index))) // self.block_size
+            if next_block != block:
+                break
+            index += index & (-index)
+```
+
+2. Parallel Updates
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+class ParallelFenwickTree:
+    def bulk_update_parallel(self, updates, num_threads=4):
+        def update_chunk(chunk):
+            for index, delta in chunk:
+                self.update(index, delta)
+        
+        chunk_size = len(updates) // num_threads
+        chunks = [updates[i:i + chunk_size] for i in range(0, len(updates), chunk_size)]
+        
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            executor.map(update_chunk, chunks)
+```
+
+## Common Pitfalls
+
+1. Index Handling
+```python
+# Wrong
+def update_wrong(self, index, delta):
+    while index < len(self.tree):  # Wrong condition
+        self.tree[index] += delta
+        index += index & (-index)
+
+# Correct
+def update_correct(self, index, delta):
+    index += 1  # Convert to 1-based indexing
+    while index <= self.size:
+        self.tree[index] += delta
+        index += index & (-index)
+```
+
+2. Range Updates
+```python
+# Wrong
+def range_update_wrong(self, left, right, value):
+    for i in range(left, right + 1):
+        self.update(i, value)  # O(n log n) complexity
+
+# Correct
+def range_update_correct(self, left, right, value):
+    self._update(left, value)
+    self._update(right + 1, -value)
+```
+
+3. Overflow Handling
+```python
+# Wrong
+def prefix_sum_wrong(self, index):
+    total = 0
+    while index > 0:
+        total += self.tree[index]  # Possible overflow
+        index -= index & (-index)
+    return total
+
+# Correct
+def prefix_sum_correct(self, index):
+    total = 0
+    while index > 0:
+        total = (total + self.tree[index]) % (10**9 + 7)  # Handle overflow
+        index -= index & (-index)
+    return total
+```

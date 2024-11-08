@@ -1,0 +1,780 @@
+---
+title: 'Python 0 - 1'
+description: 'Comprehensive guide covering Python basics to advanced features'
+---
+
+## Python Basics
+
+### Variables and Data Types
+```python
+# Basic data types
+x = 5               # int
+y = 3.14            # float
+name = "John"       # str
+is_valid = True     # bool
+complex_num = 1 + 2j  # complex
+
+# Multiple assignments
+a, b, c = 1, 2, 3
+x = y = z = 0
+
+# Type conversion
+str_num = str(123)      # Convert to string
+int_num = int("123")    # Convert to integer
+float_num = float("3.14")  # Convert to float
+
+# Type checking
+isinstance(x, int)      # Check type
+type(x)                # Get type
+```
+
+### Strings
+```python
+# String operations
+s = "Hello, World!"
+length = len(s)          # String length
+upper_s = s.upper()      # Convert to uppercase
+lower_s = s.lower()      # Convert to lowercase
+cap_s = s.capitalize()   # Capitalize first letter
+
+# String methods
+s.strip()               # Remove whitespace
+s.lstrip()              # Remove left whitespace
+s.rstrip()              # Remove right whitespace
+s.replace("o", "x")     # Replace substring
+s.split(",")            # Split string into list
+",".join(["a", "b"])    # Join list into string
+
+# String formatting
+name = "Alice"
+age = 25
+# f-strings (Python 3.6+)
+print(f"Name: {name}, Age: {age}")
+# format() method
+print("Name: {}, Age: {}".format(name, age))
+# %-formatting
+print("Name: %s, Age: %d" % (name, age))
+
+# Raw strings
+raw_str = r"C:\new\text.txt"
+
+# String slicing
+s = "Hello, World!"
+s[0]        # First character: 'H'
+s[-1]       # Last character: '!'
+s[2:5]      # Substring: 'll,'
+s[::2]      # Every second character: 'Hlo ol!'
+s[::-1]     # Reverse string: '!dlroW ,olleH'
+```
+
+### Collections
+
+#### Lists
+```python
+# List creation
+lst = [1, 2, 3]
+lst = list(range(5))    # [0, 1, 2, 3, 4]
+
+# List operations
+lst.append(4)           # Add element to end
+lst.extend([5, 6])      # Add multiple elements
+lst.insert(0, -1)       # Insert at index
+lst.remove(3)           # Remove first occurrence
+lst.pop()               # Remove and return last element
+lst.pop(0)              # Remove and return element at index
+lst.clear()             # Remove all elements
+lst.index(2)            # Get index of first occurrence
+lst.count(2)            # Count occurrences
+lst.sort()              # Sort in place
+lst.reverse()           # Reverse in place
+sorted_lst = sorted(lst)  # Return new sorted list
+reversed_lst = list(reversed(lst))  # Return new reversed list
+
+# List comprehensions
+squares = [x**2 for x in range(10)]
+evens = [x for x in range(10) if x % 2 == 0]
+matrix = [[0]*3 for _ in range(3)]  # 3x3 matrix
+
+# List slicing
+lst[1:4]      # Elements from index 1 to 3
+lst[::2]      # Every second element
+lst[::-1]     # Reverse list
+```
+
+#### Tuples
+```python
+# Tuple creation (immutable)
+t = (1, 2, 3)
+t = tuple([1, 2, 3])
+
+# Tuple operations
+len(t)                  # Length
+t.count(2)              # Count occurrences
+t.index(2)              # Get index of first occurrence
+
+# Tuple unpacking
+x, y, z = t
+a, *rest, b = [1, 2, 3, 4]  # rest = [2, 3]
+```
+
+#### Dictionaries
+```python
+# Dictionary creation
+d = {'a': 1, 'b': 2}
+d = dict(a=1, b=2)
+d = dict([('a', 1), ('b', 2)])
+
+# Dictionary operations
+d['c'] = 3              # Add/update key-value pair
+value = d.get('a', 0)   # Get value with default
+d.update({'d': 4})      # Update multiple pairs
+d.pop('a')              # Remove and return value
+d.popitem()             # Remove and return last pair
+d.clear()               # Remove all items
+
+# Dictionary methods
+keys = d.keys()         # Get keys view
+values = d.values()     # Get values view
+items = d.items()       # Get items view
+d.setdefault('a', 1)    # Set default value if key missing
+
+# Dictionary comprehensions
+squares = {x: x**2 for x in range(5)}
+filtered = {k: v for k, v in d.items() if v > 2}
+```
+
+### Collections Module
+```python
+from collections import (
+    defaultdict, Counter, OrderedDict, 
+    deque, namedtuple, ChainMap
+)
+
+# defaultdict
+d = defaultdict(list)     # Default value: empty list
+d = defaultdict(int)      # Default value: 0
+d = defaultdict(set)      # Default value: empty set
+
+# Counter
+c = Counter(['a', 'b', 'a'])
+c.most_common(2)          # Two most common elements
+c.update(['a', 'c'])      # Add elements
+c.subtract(['a'])         # Remove elements
+
+# OrderedDict (less relevant in Python 3.7+)
+od = OrderedDict()
+od['a'] = 1
+od['b'] = 2
+
+# deque (double-ended queue)
+q = deque([1, 2, 3])
+q.append(4)               # Add to right
+q.appendleft(0)          # Add to left
+q.pop()                  # Remove from right
+q.popleft()              # Remove from left
+q.rotate(1)              # Rotate right
+q.rotate(-1)             # Rotate left
+
+# namedtuple
+Point = namedtuple('Point', ['x', 'y'])
+p = Point(1, 2)
+x, y = p                 # Unpacking
+x = p.x                  # Access by name
+
+# ChainMap
+dict1 = {'a': 1, 'b': 2}
+dict2 = {'b': 3, 'c': 4}
+chain = ChainMap(dict1, dict2)  # Chain multiple dicts
+```
+
+### Sets
+```python
+# Set creation
+s = {1, 2, 3}
+s = set([1, 2, 3])
+
+# Set operations
+s.add(4)                # Add element
+s.remove(4)             # Remove element (raises KeyError if missing)
+s.discard(4)            # Remove element (no error if missing)
+s.pop()                 # Remove and return arbitrary element
+s.clear()               # Remove all elements
+
+# Set operations
+a = {1, 2, 3}
+b = {3, 4, 5}
+a | b                   # Union
+a & b                   # Intersection
+a - b                   # Difference
+a ^ b                   # Symmetric difference
+a <= b                  # Subset
+a < b                   # Proper subset
+
+# Set comprehensions
+s = {x**2 for x in range(10)}
+```
+
+### Control Flow
+```python
+# if statement
+if condition:
+    pass
+elif condition:
+    pass
+else:
+    pass
+
+# Match statement (Python 3.10+)
+match value:
+    case 1:
+        pass
+    case 2:
+        pass
+    case _:
+        pass  # Default case
+
+# for loop
+for i in range(5):
+    pass
+
+for i, value in enumerate(list):
+    pass
+
+# while loop
+while condition:
+    pass
+else:  # Executed if loop completes normally
+    pass
+
+# Loop control
+break       # Exit loop
+continue    # Skip to next iteration
+pass        # Do nothing
+
+# Comprehensions with multiple conditions
+[x for x in range(10) if x % 2 == 0 if x % 3 == 0]
+```
+
+### Functions
+```python
+# Basic function
+def func(arg1, arg2):
+    return arg1 + arg2
+
+# Default arguments
+def func(arg1, arg2=10):
+    return arg1 + arg2
+
+# Variable arguments
+def func(*args, **kwargs):
+    print(args)    # Tuple of positional arguments
+    print(kwargs)  # Dictionary of keyword arguments
+
+# Lambda functions
+square = lambda x: x**2
+
+# Function annotations (type hints)
+def func(x: int, y: str = "default") -> bool:
+    return True
+
+# Decorators
+def decorator(func):
+    def wrapper(*args, **kwargs):
+        print("Before function call")
+        result = func(*args, **kwargs)
+        print("After function call")
+        return result
+    return wrapper
+
+@decorator
+def hello():
+    print("Hello!")
+
+# Generator functions
+def gen():
+    yield 1
+    yield 2
+    yield 3
+```
+
+### Error Handling
+```python
+# Try-except
+try:
+    # Code that might raise exception
+    result = 1 / 0
+except ZeroDivisionError as e:
+    print(f"Error: {e}")
+except (TypeError, ValueError):
+    print("Type or Value Error")
+else:
+    print("No exception occurred")
+finally:
+    print("Always executed")
+
+# Raising exceptions
+raise ValueError("Invalid value")
+
+# Custom exceptions
+class CustomError(Exception):
+    pass
+
+# Context managers
+class MyContext:
+    def __enter__(self):
+        print("Entering context")
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        print("Exiting context")
+        return False  # False to propagate exceptions
+
+# Using with statement
+with MyContext():
+    print("Inside context")
+```
+
+### File Handling
+```python
+# Reading files
+with open('file.txt', 'r') as f:
+    content = f.read()         # Read entire file
+    lines = f.readlines()      # Read lines into list
+    line = f.readline()        # Read single line
+
+# Writing files
+with open('file.txt', 'w') as f:
+    f.write('Hello\n')        # Write string
+    f.writelines(['a\n', 'b\n'])  # Write multiple lines
+
+# File modes
+'r'   # Read (default)
+'w'   # Write (truncate)
+'a'   # Append
+'x'   # Exclusive creation
+'b'   # Binary mode
+'t'   # Text mode (default)
+'+'   # Read and write
+
+# Working with paths
+from pathlib import Path
+p = Path('.')
+p.resolve()           # Absolute path
+p.glob('*.py')       # Find files matching pattern
+p.mkdir(exist_ok=True)  # Create directory
+```
+
+### Advanced Features
+
+#### Itertools
+```python
+from itertools import (
+    count, cycle, repeat,
+    chain, combinations, permutations,
+    product, islice
+)
+
+# Infinite iterators
+count(10)            # 10, 11, 12, ...
+cycle('ABC')         # A, B, C, A, B, C, ...
+repeat(10, 3)        # 10, 10, 10
+
+# Finite iterators
+chain('ABC', 'DEF')  # A, B, C, D, E, F
+combinations('ABC', 2)  # AB, AC, BC
+permutations('ABC', 2)  # AB, AC, BA, BC, CA, CB
+product('AB', 'CD')   # AC, AD, BC, BD
+
+# Slicing iterators
+list(islice(count(), 5))  # [0, 1, 2, 3, 4]
+```
+
+#### Functools
+```python
+from functools import (
+    lru_cache, partial, reduce,
+    wraps, total_ordering
+)
+
+# Caching
+@lru_cache(maxsize=None)
+def fibonacci(n):
+    if n < 2:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# Partial functions
+basetwo = partial(int, base=2)
+basetwo('10010')  # Convert binary to int
+
+# Reduce
+reduce(lambda x, y: x+y, [1, 2, 3, 4])  # Sum: 10
+
+# Decorator utilities
+def decorator(func):
+    @wraps(func)  # Preserve function metadata
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+# Class decorators
+@total_ordering
+class Person:
+    def __eq__(self, other):
+        return True
+    def __lt__(self, other):
+        return True
+    # Other comparisons generated automatically
+```
+
+## Descriptors and Properties
+
+### Descriptors
+```python
+# Descriptor Protocol
+class Descriptor:
+    def __get__(self, obj, owner=None):
+        print(f"Accessing from {obj} of {owner}")
+        return self._value
+    
+    def __set__(self, obj, value):
+        print(f"Setting {value} to {obj}")
+        self._value = value
+    
+    def __delete__(self, obj):
+        print(f"Deleting from {obj}")
+        del self._value
+
+class MyClass:
+    x = Descriptor()
+
+# Usage
+obj = MyClass()
+obj.x = 1  # Calls __set__
+print(obj.x)  # Calls __get__
+del obj.x  # Calls __delete__
+
+# Data and Non-Data Descriptors
+class NonDataDescriptor:
+    def __get__(self, obj, owner=None):
+        return 42
+
+class DataDescriptor:
+    def __get__(self, obj, owner=None):
+        return 42
+    
+    def __set__(self, obj, value):
+        pass
+```
+
+### Advanced Properties
+```python
+class Temperature:
+    def __init__(self):
+        self._celsius = 0
+    
+    @property
+    def celsius(self):
+        return self._celsius
+    
+    @celsius.setter
+    def celsius(self, value):
+        if value < -273.15:
+            raise ValueError("Temperature below absolute zero!")
+        self._celsius = value
+    
+    @property
+    def fahrenheit(self):
+        return self._celsius * 9/5 + 32
+    
+    @fahrenheit.setter
+    def fahrenheit(self, value):
+        self.celsius = (value - 32) * 5/9
+    
+    @property
+    def kelvin(self):
+        return self._celsius + 273.15
+    
+    @kelvin.setter
+    def kelvin(self, value):
+        self.celsius = value - 273.15
+```
+
+## Metaclasses and Class Creation
+
+### Custom Metaclasses
+```python
+# Basic Metaclass
+class MetaClass(type):
+    def __new__(cls, name, bases, attrs):
+        # Modify class attributes here
+        print(f"Creating class {name}")
+        return super().__new__(cls, name, bases, attrs)
+    
+    def __init__(cls, name, bases, attrs):
+        # Initialize the class
+        super().__init__(name, bases, attrs)
+        print(f"Initializing class {name}")
+
+class MyClass(metaclass=MetaClass):
+    def __init__(self):
+        print("Instance created")
+
+# Abstract Base Classes with Metaclasses
+from abc import ABCMeta, abstractmethod
+
+class Interface(metaclass=ABCMeta):
+    @abstractmethod
+    def method(self):
+        pass
+
+# Singleton Metaclass
+class Singleton(type):
+    _instances = {}
+    
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class Database(metaclass=Singleton):
+    def __init__(self):
+        self.connection = "Connected"
+```
+
+## Context Managers
+
+### Context Manager Protocol
+```python
+class FileManager:
+    def __init__(self, filename, mode='r'):
+        self.filename = filename
+        self.mode = mode
+        self.file = None
+    
+    def __enter__(self):
+        self.file = open(self.filename, self.mode)
+        return self.file
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.file:
+            self.file.close()
+        if exc_type is not None:
+            # Handle exception
+            return False  # Propagate exception
+        return True
+
+# Contextlib utilities
+from contextlib import contextmanager, suppress
+
+@contextmanager
+def timer():
+    from time import time
+    start = time()
+    yield
+    end = time()
+    print(f"Elapsed: {end - start}")
+
+# Exception suppression
+with suppress(FileNotFoundError):
+    open('nonexistent.txt')
+```
+
+## Asyncio and Coroutines
+
+### Basic Asyncio
+```python
+import asyncio
+
+async def main():
+    print('Start')
+    await asyncio.sleep(1)
+    print('End')
+
+# Running coroutines
+asyncio.run(main())
+
+# Multiple coroutines
+async def task1():
+    await asyncio.sleep(1)
+    return 'Task 1 done'
+
+async def task2():
+    await asyncio.sleep(2)
+    return 'Task 2 done'
+
+async def main():
+    results = await asyncio.gather(task1(), task2())
+    print(results)
+
+# Event loops and Tasks
+async def main():
+    loop = asyncio.get_event_loop()
+    task = loop.create_task(some_coroutine())
+    await task
+```
+
+### Advanced Asyncio Patterns
+```python
+# Asyncio Queues
+async def producer(queue):
+    for i in range(5):
+        await queue.put(i)
+        await asyncio.sleep(1)
+
+async def consumer(queue):
+    while True:
+        item = await queue.get()
+        print(f"Consumed {item}")
+        queue.task_done()
+
+async def main():
+    queue = asyncio.Queue()
+    producers = [asyncio.create_task(producer(queue))]
+    consumers = [asyncio.create_task(consumer(queue))]
+    await asyncio.gather(*producers)
+    await queue.join()
+    for c in consumers:
+        c.cancel()
+
+# Asyncio Locks and Events
+async def worker(lock, event):
+    async with lock:
+        print("Worker acquired lock")
+        await event.wait()
+    print("Worker released lock")
+
+async def main():
+    lock = asyncio.Lock()
+    event = asyncio.Event()
+    workers = [asyncio.create_task(worker(lock, event))
+               for _ in range(3)]
+    await asyncio.sleep(1)
+    event.set()
+    await asyncio.gather(*workers)
+```
+
+## Advanced Generators
+
+### Generator Expressions and Pipelines
+```python
+# Generator expressions
+gen = (x**2 for x in range(10))
+
+# Generator pipeline
+def generate_numbers():
+    for i in range(10):
+        yield i
+
+def square_numbers(numbers):
+    for n in numbers:
+        yield n**2
+
+def filter_even(numbers):
+    for n in numbers:
+        if n % 2 == 0:
+            yield n
+
+# Pipeline usage
+pipeline = filter_even(square_numbers(generate_numbers()))
+
+# Subgenerators with yield from
+def sub_gen():
+    yield from range(5)
+    yield from 'abc'
+```
+
+## Type Hints and Generics
+
+### Advanced Type Hints
+```python
+from typing import (
+    TypeVar, Generic, Protocol,
+    Callable, Union, Optional,
+    List, Dict, Tuple, Set,
+    Any, NoReturn
+)
+
+T = TypeVar('T')
+U = TypeVar('U', bound='BaseClass')
+
+class Stack(Generic[T]):
+    def __init__(self) -> None:
+        self.items: List[T] = []
+    
+    def push(self, item: T) -> None:
+        self.items.append(item)
+    
+    def pop(self) -> T:
+        return self.items.pop()
+
+# Protocols (Structural subtyping)
+class Drawable(Protocol):
+    def draw(self) -> None: ...
+
+def render(drawable: Drawable) -> None:
+    drawable.draw()
+
+# Type aliases
+Vector = List[float]
+Point = Tuple[float, float]
+ConnectionPool = Dict[str, List[Any]]
+
+# Callable types
+Handler = Callable[[str, int], bool]
+
+def process(handler: Handler) -> None:
+    result = handler("test", 42)
+```
+
+## Advanced Class Features
+
+### Slots and Memory Optimization
+```python
+class OptimizedClass:
+    __slots__ = ['x', 'y']
+    
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+# Memory usage comparison
+from sys import getsizeof
+
+regular_obj = type('Regular', (), {'x': 1, 'y': 2})()
+optimized_obj = OptimizedClass(1, 2)
+print(getsizeof(regular_obj), getsizeof(optimized_obj))
+```
+
+### Method Resolution Order (MRO)
+```python
+class A:
+    def method(self):
+        print("A")
+
+class B(A):
+    def method(self):
+        print("B")
+        super().method()
+
+class C(A):
+    def method(self):
+        print("C")
+        super().method()
+
+class D(B, C):
+    def method(self):
+        print("D")
+        super().method()
+
+# Check MRO
+print(D.__mro__)
+```
+
+More advanced topics to explore:
+1. Advanced debugging and profiling
+2. Concurrency with multiprocessing and threading
+3. Network programming with sockets
+4. Advanced data structures
+5. Memory management and garbage collection
+6. Design patterns implementation in Python

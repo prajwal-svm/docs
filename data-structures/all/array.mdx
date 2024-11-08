@@ -1,0 +1,309 @@
+## Core Implementation
+
+Python offers several ways to implement arrays:
+
+### Built-in Lists (Dynamic Arrays)
+```python
+# Basic list implementation
+numbers = [1, 2, 3, 4, 5]
+
+# Common operations
+numbers.append(6)        # Add element
+numbers.pop()           # Remove last element
+numbers.insert(0, 0)    # Insert at index
+numbers.remove(3)       # Remove specific element
+numbers[2] = 10         # Update element
+element = numbers[1]    # Access element
+```
+
+### NumPy Arrays (Static Arrays)
+```python
+import numpy as np
+
+# Fixed-size array
+arr = np.array([1, 2, 3, 4, 5])
+
+# Multi-dimensional array
+matrix = np.array([[1, 2, 3], [4, 5, 6]])
+
+# Array with specific data type
+int_array = np.array([1, 2, 3], dtype=np.int32)
+```
+
+### Array Module (Homogeneous Arrays)
+```python
+from array import array
+
+# Type code 'i' for signed integers
+int_array = array('i', [1, 2, 3, 4, 5])
+
+# Type code 'd' for double-precision floats
+float_array = array('d', [1.0, 2.0, 3.0])
+```
+
+## Implementation Variations
+
+### 1. Circular Array
+```python
+class CircularArray:
+    def __init__(self, size):
+        self.size = size
+        self.array = [None] * size
+        self.head = 0
+        self.tail = 0
+        self.count = 0
+    
+    def enqueue(self, item):
+        if self.count == self.size:
+            raise Exception("Array is full")
+        self.array[self.tail] = item
+        self.tail = (self.tail + 1) % self.size
+        self.count += 1
+    
+    def dequeue(self):
+        if self.count == 0:
+            raise Exception("Array is empty")
+        item = self.array[self.head]
+        self.head = (self.head + 1) % self.size
+        self.count -= 1
+        return item
+```
+
+### 2. Dynamic Array (Manual Implementation)
+```python
+class DynamicArray:
+    def __init__(self):
+        self.array = [None] * 16
+        self.size = 0
+        self.capacity = 16
+    
+    def append(self, item):
+        if self.size == self.capacity:
+            self._resize(self.capacity * 2)
+        self.array[self.size] = item
+        self.size += 1
+    
+    def _resize(self, new_capacity):
+        new_array = [None] * new_capacity
+        for i in range(self.size):
+            new_array[i] = self.array[i]
+        self.array = new_array
+        self.capacity = new_capacity
+```
+
+## Time Complexities
+
+| Operation                | Dynamic Array (List) | Static Array (NumPy) | Circular Array |
+|-------------------------|---------------------|---------------------|----------------|
+| Access (index)          | O(1)               | O(1)               | O(1)          |
+| Append                  | O(1)*              | N/A                | O(1)          |
+| Insert (beginning)      | O(n)               | N/A                | N/A           |
+| Insert (middle)         | O(n)               | N/A                | N/A           |
+| Delete (beginning)      | O(n)               | N/A                | O(1)**        |
+| Delete (middle)         | O(n)               | N/A                | N/A           |
+| Search (unsorted)       | O(n)               | O(n)               | O(n)          |
+| Search (sorted)         | O(log n)***        | O(log n)***        | O(n)          |
+
+\* Amortized time complexity
+\** For circular array queue implementation
+\*** Using binary search if array is sorted
+
+## Space Complexities
+
+| Implementation          | Space Complexity    | Additional Notes                          |
+|------------------------|--------------------|--------------------------------------------|
+| Dynamic Array (List)   | O(n)              | Typically allocates 2x needed space        |
+| Static Array (NumPy)   | O(n)              | Fixed size, more memory efficient          |
+| Circular Array         | O(n)              | Fixed size with constant extra space       |
+| Multi-dimensional      | O(n*m)            | For 2D array with n rows and m columns     |
+
+## Common Data Structure Patterns
+
+1. Two Pointer Technique
+   - Fast and slow pointers
+   - Start and end pointers
+   - Sliding window
+
+2. Sliding Window
+   - Fixed size window
+   - Variable size window
+   - Multiple windows
+
+3. Prefix Sum
+   - Cumulative sum array
+   - Difference array
+
+4. Kadane's Algorithm Pattern
+   - Maximum subarray
+   - Dynamic programming with arrays
+
+5. Dutch National Flag
+   - Three-way partitioning
+   - Quick sort partitioning
+
+6. Cyclic Sort
+   - In-place sorting
+   - Missing/duplicate numbers
+
+## Edge Cases to Consider
+
+1. Empty Array
+```python
+arr = []
+# Handle: if not arr: return None
+```
+
+2. Single Element
+```python
+arr = [1]
+# Handle: if len(arr) == 1: return arr[0]
+```
+
+3. Array Size Limits
+```python
+# Memory limit exceeded
+large_arr = [0] * (10**8)  # May cause MemoryError
+```
+
+4. Integer Overflow
+```python
+# Python handles automatically, but consider for other languages
+max_int = 2**31 - 1
+arr = [max_int, max_int]
+# sum(arr) might overflow in other languages
+```
+
+5. Duplicate Elements
+```python
+arr = [1, 1, 2, 2, 3, 3]
+# Consider: set(arr) for unique elements
+```
+
+## Optimization Techniques
+
+1. Pre-allocation
+```python
+# Bad
+arr = []
+for i in range(1000000):
+    arr.append(i)
+
+# Good
+arr = [0] * 1000000
+for i in range(1000000):
+    arr[i] = i
+```
+
+2. List Comprehension
+```python
+# Bad
+squares = []
+for i in range(1000):
+    squares.append(i * i)
+
+# Good
+squares = [i * i for i in range(1000)]
+```
+
+3. Using NumPy for Numerical Operations
+```python
+# Bad
+arr = [1, 2, 3, 4, 5]
+squared = [x * x for x in arr]
+
+# Good
+import numpy as np
+arr = np.array([1, 2, 3, 4, 5])
+squared = arr ** 2
+```
+
+## Memory Management
+
+1. Garbage Collection
+```python
+# Release memory explicitly
+large_arr = [0] * 1000000
+del large_arr  # Marks for garbage collection
+```
+
+2. Memory Views
+```python
+from memory_view import memoryview
+# Create a memory view of an array
+numbers = bytearray(b'Hello')
+view = memoryview(numbers)
+```
+
+3. Array Slicing
+```python
+# Bad (creates copy)
+large_arr = list(range(1000000))
+subset = large_arr[:]
+
+# Good (view)
+subset = large_arr  # Reference
+# or
+subset = memoryview(large_arr)
+```
+
+## Performance Considerations
+
+1. Array Copy vs Reference
+```python
+# Shallow copy (reference)
+arr1 = [1, 2, 3]
+arr2 = arr1  # Reference, changes affect both
+
+# Deep copy (independent)
+import copy
+arr2 = copy.deepcopy(arr1)  # Independent copy
+```
+
+2. Batch Processing
+```python
+# Process in batches for large arrays
+BATCH_SIZE = 1000
+large_array = list(range(1000000))
+
+for i in range(0, len(large_array), BATCH_SIZE):
+    batch = large_array[i:i + BATCH_SIZE]
+    # Process batch
+```
+
+## Common Pitfalls
+
+1. List Reference Pitfall
+```python
+# Common mistake
+rows = [[0] * 3] * 3  # Creates references
+rows[0][0] = 1  # Modifies all rows
+
+# Correct way
+rows = [[0] * 3 for _ in range(3)]  # Independent lists
+```
+
+2. Index Out of Range
+```python
+arr = [1, 2, 3]
+# Avoid direct access without bounds checking
+try:
+    value = arr[5]  # IndexError
+except IndexError:
+    value = None
+```
+
+3. Memory Leak in Circular References
+```python
+# Potential memory leak
+class Node:
+    def __init__(self):
+        self.ref = None
+
+node1 = Node()
+node2 = Node()
+node1.ref = node2
+node2.ref = node1
+# Clear references when done
+node1.ref = None
+node2.ref = None
+```

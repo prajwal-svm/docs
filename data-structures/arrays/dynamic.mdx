@@ -1,0 +1,329 @@
+---
+title: 'Dynamic Arrays'
+description: 'Understanding Dynamic Arrays (Lists in Python) - Implementation, Operations, and Common Patterns'
+---
+
+## Introduction
+
+Dynamic arrays (Lists in Python) automatically resize themselves when more space is needed. They provide a balance between the rigid structure of static arrays and the flexibility of linked lists.
+
+## Implementation Details
+
+### Basic Implementation
+```python
+class DynamicArray:
+    def __init__(self, capacity: int = 10):
+        self.capacity = capacity
+        self.size = 0
+        # Create array with fixed capacity
+        self.array = [None] * capacity
+    
+    def __len__(self) -> int:
+        return self.size
+    
+    def is_empty(self) -> bool:
+        return self.size == 0
+    
+    def get(self, index: int) -> any:
+        if 0 <= index < self.size:
+            return self.array[index]
+        raise IndexError("Index out of bounds")
+    
+    def set(self, index: int, value: any) -> None:
+        if 0 <= index < self.size:
+            self.array[index] = value
+        else:
+            raise IndexError("Index out of bounds")
+    
+    def append(self, value: any) -> None:
+        if self.size == self.capacity:
+            self._resize(2 * self.capacity)
+        self.array[self.size] = value
+        self.size += 1
+    
+    def _resize(self, new_capacity: int) -> None:
+        # Create new array with doubled capacity
+        new_array = [None] * new_capacity
+        # Copy elements to new array
+        for i in range(self.size):
+            new_array[i] = self.array[i]
+        self.array = new_array
+        self.capacity = new_capacity
+```
+
+## Time Complexity
+
+| Operation | Average Case | Amortized Worst Case | Description |
+|-----------|-------------|---------------------|-------------|
+| Access    | O(1)        | O(1)               | Direct index access |
+| Append    | O(1)        | O(n)               | Amortized constant time |
+| Insert    | O(n)        | O(n)               | Shift elements right |
+| Delete    | O(n)        | O(n)               | Shift elements left |
+| Search    | O(n)        | O(n)               | Linear search |
+
+## Core Operations
+
+### Append Operation
+```python
+def append(self, value: any) -> None:
+    """
+    Append element to end of array
+    Time Complexity: O(1) amortized
+    """
+    if self.size == self.capacity:
+        # Double the capacity
+        self._resize(2 * self.capacity)
+    self.array[self.size] = value
+    self.size += 1
+```
+
+### Insert Operation
+```python
+def insert(self, index: int, value: any) -> None:
+    """
+    Insert element at specific index
+    Time Complexity: O(n)
+    """
+    if index < 0 or index > self.size:
+        raise IndexError("Index out of bounds")
+        
+    if self.size == self.capacity:
+        self._resize(2 * self.capacity)
+    
+    # Shift elements to right
+    for i in range(self.size, index, -1):
+        self.array[i] = self.array[i-1]
+    
+    self.array[index] = value
+    self.size += 1
+```
+
+### Remove Operation
+```python
+def remove(self, index: int) -> any:
+    """
+    Remove element at index
+    Time Complexity: O(n)
+    """
+    if index < 0 or index >= self.size:
+        raise IndexError("Index out of bounds")
+    
+    value = self.array[index]
+    
+    # Shift elements to left
+    for i in range(index, self.size - 1):
+        self.array[i] = self.array[i+1]
+    
+    self.size -= 1
+    
+    # Shrink array if needed
+    if self.size < self.capacity // 4:
+        self._resize(self.capacity // 2)
+    
+    return value
+```
+
+## Advanced Operations
+
+### Efficient Resizing Strategy
+```python
+def _resize(self, new_capacity: int) -> None:
+    """
+    Resize array with optimized growth factor
+    Time Complexity: O(n)
+    """
+    # Create new array with new capacity
+    new_array = [None] * new_capacity
+    
+    # Copy elements using efficient slice operation
+    new_array[:self.size] = self.array[:self.size]
+    
+    self.array = new_array
+    self.capacity = new_capacity
+```
+
+### Binary Search Implementation
+```python
+def binary_search(self, target: any) -> int:
+    """
+    Binary search for sorted arrays
+    Time Complexity: O(log n)
+    """
+    left, right = 0, self.size - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        if self.array[mid] == target:
+            return mid
+        elif self.array[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return -1
+```
+
+## Common Applications and Patterns
+
+### Sliding Window
+```python
+def sliding_window_max(self, k: int) -> list:
+    """
+    Find maximum in each sliding window of size k
+    Time Complexity: O(n)
+    """
+    if self.size == 0 or k <= 0:
+        return []
+    
+    result = []
+    window = []  # Store indices
+    
+    for i in range(self.size):
+        # Remove elements outside current window
+        while window and window[0] < i - k + 1:
+            window.pop(0)
+        
+        # Remove elements smaller than current
+        while window and self.array[window[-1]] < self.array[i]:
+            window.pop()
+        
+        window.append(i)
+        
+        # Add max of current window to result
+        if i >= k - 1:
+            result.append(self.array[window[0]])
+    
+    return result
+```
+
+### Two Pointers Technique
+```python
+def two_sum(self, target: int) -> tuple:
+    """
+    Find two numbers that sum to target
+    Time Complexity: O(n)
+    """
+    left, right = 0, self.size - 1
+    
+    while left < right:
+        current_sum = self.array[left] + self.array[right]
+        if current_sum == target:
+            return (left, right)
+        elif current_sum < target:
+            left += 1
+        else:
+            right -= 1
+    
+    return None
+```
+
+## Optimization Techniques
+
+### Memory Usage Optimization
+```python
+def optimize_memory(self) -> None:
+    """
+    Optimize memory usage by shrinking array
+    """
+    if self.size < self.capacity // 2:
+        self._resize(max(self.size * 2, 10))
+```
+
+### Batch Operations
+```python
+def batch_append(self, values: list) -> None:
+    """
+    Efficiently append multiple values
+    Time Complexity: O(n) where n is len(values)
+    """
+    required_capacity = self.size + len(values)
+    
+    if required_capacity > self.capacity:
+        # Resize once for all elements
+        new_capacity = max(required_capacity, 2 * self.capacity)
+        self._resize(new_capacity)
+    
+    # Use slice assignment for efficient copying
+    self.array[self.size:self.size + len(values)] = values
+    self.size += len(values)
+```
+
+## Common Interview Problems
+
+### 1. Maximum Subarray
+```python
+def max_subarray(self) -> int:
+    """
+    Find maximum sum subarray using Kadane's algorithm
+    Time Complexity: O(n)
+    """
+    max_sum = current_sum = float('-inf')
+    
+    for i in range(self.size):
+        current_sum = max(self.array[i], current_sum + self.array[i])
+        max_sum = max(max_sum, current_sum)
+    
+    return max_sum
+```
+
+### 2. Array Rotation
+```python
+def rotate(self, k: int) -> None:
+    """
+    Rotate array by k positions
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    if self.size <= 1:
+        return
+    
+    k = k % self.size
+    
+    def reverse(start: int, end: int) -> None:
+        while start < end:
+            self.array[start], self.array[end] = \
+                self.array[end], self.array[start]
+            start += 1
+            end -= 1
+    
+    reverse(0, self.size - 1)
+    reverse(0, k - 1)
+    reverse(k, self.size - 1)
+```
+
+## Best Practices and Tips
+
+### 1. Growth Factor Selection
+```python
+# Common growth factors
+GROWTH_FACTORS = {
+    1.5: "Moderate growth, less memory waste",
+    2.0: "Standard growth, good performance",
+    4.0: "Aggressive growth, more memory waste"
+}
+
+def calculate_new_capacity(self) -> int:
+    """
+    Calculate new capacity based on growth factor
+    """
+    return int(self.capacity * 2.0)  # Using standard growth factor
+```
+
+### 2. Error Handling
+```python
+def safe_operations(self):
+    """
+    Example of proper error handling
+    """
+    try:
+        # Array operations
+        value = self.get(0)
+        self.insert(0, 10)
+        self.remove(0)
+    except IndexError as e:
+        # Handle index out of bounds
+        print(f"Error: {e}")
+    except MemoryError as e:
+        # Handle memory allocation failures
+        print(f"Memory error: {e}")
+```

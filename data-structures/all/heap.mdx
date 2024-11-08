@@ -1,0 +1,363 @@
+## Core Implementation
+
+### Binary Heap (Min Heap)
+```python
+class MinHeap:
+    def __init__(self):
+        self.heap = []
+    
+    def parent(self, i):
+        return (i - 1) // 2
+    
+    def left_child(self, i):
+        return 2 * i + 1
+    
+    def right_child(self, i):
+        return 2 * i + 2
+    
+    def swap(self, i, j):
+        self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
+    
+    def insert(self, key):
+        self.heap.append(key)
+        self._sift_up(len(self.heap) - 1)
+    
+    def _sift_up(self, i):
+        parent = self.parent(i)
+        if i > 0 and self.heap[i] < self.heap[parent]:
+            self.swap(i, parent)
+            self._sift_up(parent)
+    
+    def extract_min(self):
+        if not self.heap:
+            raise IndexError("Heap is empty")
+        
+        min_val = self.heap[0]
+        last_val = self.heap.pop()
+        
+        if self.heap:
+            self.heap[0] = last_val
+            self._sift_down(0)
+        
+        return min_val
+    
+    def _sift_down(self, i):
+        min_idx = i
+        left = self.left_child(i)
+        right = self.right_child(i)
+        
+        if left < len(self.heap) and self.heap[left] < self.heap[min_idx]:
+            min_idx = left
+        
+        if right < len(self.heap) and self.heap[right] < self.heap[min_idx]:
+            min_idx = right
+        
+        if min_idx != i:
+            self.swap(i, min_idx)
+            self._sift_down(min_idx)
+```
+
+## Implementation Variations
+
+### 1. Max Heap
+```python
+class MaxHeap(MinHeap):
+    def _sift_up(self, i):
+        parent = self.parent(i)
+        if i > 0 and self.heap[i] > self.heap[parent]:
+            self.swap(i, parent)
+            self._sift_up(parent)
+    
+    def _sift_down(self, i):
+        max_idx = i
+        left = self.left_child(i)
+        right = self.right_child(i)
+        
+        if left < len(self.heap) and self.heap[left] > self.heap[max_idx]:
+            max_idx = left
+        
+        if right < len(self.heap) and self.heap[right] > self.heap[max_idx]:
+            max_idx = right
+        
+        if max_idx != i:
+            self.swap(i, max_idx)
+            self._sift_down(max_idx)
+    
+    def extract_max(self):
+        return super().extract_min()
+```
+
+### 2. Priority Queue with Custom Objects
+```python
+class PriorityQueue:
+    def __init__(self):
+        self.heap = []
+        self.entry_count = 0  # For stable sorting
+    
+    class Entry:
+        def __init__(self, priority, count, item):
+            self.priority = priority
+            self.count = count
+            self.item = item
+        
+        def __lt__(self, other):
+            return (self.priority, self.count) < (other.priority, other.count)
+    
+    def push(self, item, priority):
+        entry = self.Entry(priority, self.entry_count, item)
+        heapq.heappush(self.heap, entry)
+        self.entry_count += 1
+    
+    def pop(self):
+        if not self.heap:
+            raise IndexError("Queue is empty")
+        return heapq.heappop(self.heap).item
+```
+
+### 3. D-ary Heap
+```python
+class DaryHeap:
+    def __init__(self, d=3):
+        self.heap = []
+        self.d = d
+    
+    def parent(self, i):
+        return (i - 1) // self.d
+    
+    def child(self, i, k):
+        return self.d * i + k + 1
+    
+    def insert(self, key):
+        self.heap.append(key)
+        self._sift_up(len(self.heap) - 1)
+    
+    def _sift_up(self, i):
+        parent = self.parent(i)
+        if i > 0 and self.heap[i] < self.heap[parent]:
+            self.swap(i, parent)
+            self._sift_up(parent)
+    
+    def _sift_down(self, i):
+        min_idx = i
+        for k in range(self.d):
+            child = self.child(i, k)
+            if child < len(self.heap) and self.heap[child] < self.heap[min_idx]:
+                min_idx = child
+        
+        if min_idx != i:
+            self.swap(i, min_idx)
+            self._sift_down(min_idx)
+```
+
+## Time Complexities
+
+| Operation          | Binary Heap | D-ary Heap     | Priority Queue |
+|-------------------|-------------|----------------|----------------|
+| Build Heap        | O(n)        | O(n)          | O(n)          |
+| Insert            | O(log n)    | O(logd n)     | O(log n)      |
+| Extract Min/Max   | O(log n)    | O(d logd n)   | O(log n)      |
+| Decrease Key      | O(log n)    | O(logd n)     | N/A           |
+| Get Min/Max       | O(1)        | O(1)          | O(1)          |
+| Delete            | O(log n)    | O(d logd n)   | O(log n)      |
+| Merge            | O(n)        | O(n)          | O(n)          |
+
+## Space Complexities
+
+| Implementation    | Space Complexity | Additional Notes                          |
+|------------------|------------------|------------------------------------------|
+| Binary Heap      | O(n)            | Complete binary tree structure           |
+| D-ary Heap       | O(n)            | D children per node                      |
+| Priority Queue   | O(n)            | Additional space for entry objects       |
+
+## Common Data Structure Patterns
+
+1. Priority Queue Applications
+   - Task Scheduling
+   - Event Processing
+   - Dijkstra's Algorithm
+
+2. Heap Sort Patterns
+   - K-way Merge
+   - Partial Sorting
+   - Stream Processing
+
+3. Median Finding
+   - Running Median
+   - Sliding Window Median
+   - Two-Heap Pattern
+
+4. K-th Element Problems
+   - K Largest Elements
+   - K Closest Points
+   - Top K Frequent
+
+5. Merge Patterns
+   - Merge K Sorted Lists
+   - Merge K Sorted Arrays
+   - Stream Merging
+
+6. Optimization Problems
+   - Load Balancing
+   - Resource Allocation
+   - Job Scheduling
+
+## Edge Cases to Consider
+
+1. Empty Heap
+```python
+if not self.heap:
+    raise IndexError("Heap is empty")
+```
+
+2. Single Element
+```python
+if len(self.heap) == 1:
+    return self.heap.pop()
+```
+
+3. Duplicate Elements
+```python
+# Using custom comparison
+class HeapEntry:
+    def __init__(self, val, index):
+        self.val = val
+        self.index = index
+    
+    def __lt__(self, other):
+        if self.val == other.val:
+            return self.index < other.index
+        return self.val < other.val
+```
+
+## Optimization Techniques
+
+1. Array-based Implementation
+```python
+def build_heap(self, arr):
+    self.heap = arr[:]
+    n = len(self.heap)
+    for i in range(n//2 - 1, -1, -1):
+        self._sift_down(i)
+```
+
+2. Bottom-up Heap Construction
+```python
+def build_heap_bottom_up(self, arr):
+    self.heap = arr[:]
+    for i in range(len(self.heap)//2 - 1, -1, -1):
+        self._sift_down(i)
+```
+
+3. Index Mapping for Quick Access
+```python
+class IndexedHeap:
+    def __init__(self):
+        self.heap = []
+        self.index_map = {}  # Value to index mapping
+    
+    def swap(self, i, j):
+        self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
+        self.index_map[self.heap[i]] = i
+        self.index_map[self.heap[j]] = j
+```
+
+## Memory Management
+
+1. Fixed-size Heap
+```python
+class FixedSizeHeap:
+    def __init__(self, max_size):
+        self.max_size = max_size
+        self.heap = []
+    
+    def push(self, item):
+        if len(self.heap) < self.max_size:
+            heapq.heappush(self.heap, item)
+        elif item > self.heap[0]:
+            heapq.heapreplace(self.heap, item)
+```
+
+2. Memory-Efficient Implementation
+```python
+class CompactHeap:
+    def __init__(self):
+        self.data = array.array('i')  # Use array module for primitive types
+    
+    def push(self, item):
+        self.data.append(item)
+        self._sift_up(len(self.data) - 1)
+```
+
+## Performance Considerations
+
+1. Batch Operations
+```python
+def push_many(self, items):
+    self.heap.extend(items)
+    self._heapify()  # More efficient than individual pushes
+```
+
+2. Cache-Friendly Implementation
+```python
+class CacheOptimizedHeap:
+    def __init__(self):
+        self.block_size = 64  # Cache line size
+        self.heap = bytearray(self.block_size * 16)
+```
+
+## Common Pitfalls
+
+1. Incorrect Heap Property Maintenance
+```python
+# Wrong
+def decrease_key(self, i, new_val):
+    self.heap[i] = new_val
+    # Missing sift up
+
+# Correct
+def decrease_key(self, i, new_val):
+    if new_val > self.heap[i]:
+        raise ValueError("New value is greater than current value")
+    self.heap[i] = new_val
+    self._sift_up(i)
+```
+
+2. Improper Memory Management
+```python
+# Wrong
+def extract_min(self):
+    min_val = self.heap[0]
+    self.heap[0] = self.heap[-1]
+    self.heap.pop()  # Memory leak potential
+
+# Correct
+def extract_min(self):
+    if not self.heap:
+        raise IndexError("Heap is empty")
+    min_val = self.heap[0]
+    last_val = self.heap.pop()
+    if self.heap:
+        self.heap[0] = last_val
+        self._sift_down(0)
+    return min_val
+```
+
+3. Index Out of Bounds
+```python
+# Wrong
+def get_children(self, i):
+    left = 2 * i + 1
+    right = 2 * i + 2
+    return [left, right]  # Might be invalid indices
+
+# Correct
+def get_children(self, i):
+    children = []
+    left = 2 * i + 1
+    right = 2 * i + 2
+    if left < len(self.heap):
+        children.append(left)
+    if right < len(self.heap):
+        children.append(right)
+    return children
+```

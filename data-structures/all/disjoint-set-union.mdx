@@ -1,0 +1,345 @@
+## Core Implementation
+
+### Basic DSU with Path Compression and Union by Rank
+```python
+class DisjointSet:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        self.size = [1] * n  # Track size of each set
+        self.components = n  # Track number of components
+    
+    def find(self, x):
+        # Path compression
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+    
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return False  # Already in same set
+        
+        # Union by rank
+        if self.rank[px] < self.rank[py]:
+            px, py = py, px
+        self.parent[py] = px
+        self.size[px] += self.size[py]
+        
+        if self.rank[px] == self.rank[py]:
+            self.rank[px] += 1
+        
+        self.components -= 1
+        return True
+    
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+    
+    def get_size(self, x):
+        return self.size[self.find(x)]
+```
+
+## Implementation Variations
+
+### 1. DSU with Path Splitting
+```python
+class PathSplittingDSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+    
+    def find(self, x):
+        # Path splitting
+        while self.parent[x] != x:
+            next_parent = self.parent[self.parent[x]]
+            self.parent[x] = next_parent
+            x = next_parent
+        return x
+```
+
+### 2. DSU with Path Halving
+```python
+class PathHalvingDSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+    
+    def find(self, x):
+        # Path halving
+        while self.parent[x] != x:
+            self.parent[x] = self.parent[self.parent[x]]
+            x = self.parent[x]
+        return x
+```
+
+### 3. Weighted Quick Union
+```python
+class WeightedQuickUnion:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.size = [1] * n
+    
+    def find(self, x):
+        while self.parent[x] != x:
+            x = self.parent[x]
+        return x
+    
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return
+        
+        # Always attach smaller tree under root of larger tree
+        if self.size[px] < self.size[py]:
+            self.parent[px] = py
+            self.size[py] += self.size[px]
+        else:
+            self.parent[py] = px
+            self.size[px] += self.size[py]
+```
+
+## Time Complexities
+
+| Operation         | Simple DSU | Path Compression | Path Splitting | Weighted QU |
+|------------------|------------|-----------------|----------------|-------------|
+| Make Set         | O(1)       | O(1)           | O(1)           | O(1)        |
+| Find             | O(N)       | O(α(N))*       | O(log N)       | O(log N)    |
+| Union            | O(N)       | O(α(N))*       | O(log N)       | O(log N)    |
+| Connected        | O(N)       | O(α(N))*       | O(log N)       | O(log N)    |
+
+\* α(N) is the inverse Ackermann function, which is effectively constant
+
+## Space Complexities
+
+| Implementation      | Space Complexity | Additional Notes                          |
+|--------------------|------------------|------------------------------------------|
+| Basic DSU          | O(N)            | Parent array only                        |
+| Ranked DSU         | O(N)            | Extra array for ranks                    |
+| Weighted QU        | O(N)            | Extra array for sizes                    |
+| Path Compression   | O(N)            | No extra space beyond parent array       |
+
+## Common Data Structure Patterns
+
+1. Connected Components
+   - Graph connectivity
+   - Component counting
+   - Cycle detection
+
+2. Dynamic Connectivity
+   - Online connectivity queries
+   - Real-time updates
+   - Network partitioning
+
+3. Minimum Spanning Tree
+   - Kruskal's algorithm
+   - Network design
+   - Clustering
+
+4. Component Properties
+   - Size tracking
+   - Component merging
+   - Set operations
+
+5. Graph Algorithms
+   - Cycle detection
+   - Connected components
+   - Path compression
+
+6. Network Flow
+   - Network connectivity
+   - Cut problems
+   - Flow partitioning
+
+## Edge Cases to Consider
+
+1. Single Element Set
+```python
+def handle_single(self, x):
+    return self.parent[x] == x and self.size[x] == 1
+```
+
+2. Self-Union
+```python
+def union_safe(self, x, y):
+    if x == y:
+        return False  # Cannot union element with itself
+    return self.union(x, y)
+```
+
+3. Invalid Elements
+```python
+def validate_element(self, x):
+    if not 0 <= x < len(self.parent):
+        raise ValueError(f"Element {x} out of range")
+```
+
+## Optimization Techniques
+
+1. Path Compression with Recursion Elimination
+```python
+def find_iterative(self, x):
+    # Find root
+    root = x
+    while self.parent[root] != root:
+        root = self.parent[root]
+    
+    # Compress path
+    while x != root:
+        next_parent = self.parent[x]
+        self.parent[x] = root
+        x = next_parent
+    
+    return root
+```
+
+2. Rank Balancing
+```python
+class RankBalancedDSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        self.max_rank = 0
+    
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return
+        
+        if self.rank[px] < self.rank[py]:
+            px, py = py, px
+        
+        self.parent[py] = px
+        if self.rank[px] == self.rank[py]:
+            self.rank[px] += 1
+            self.max_rank = max(self.max_rank, self.rank[px])
+```
+
+## Memory Management
+
+1. Compact Representation
+```python
+class CompactDSU:
+    def __init__(self, n):
+        # Use a single array for both parent and rank
+        # Higher 16 bits for rank, lower 16 bits for parent
+        self.data = list(range(n))
+    
+    def get_parent(self, x):
+        return self.data[x] & 0xFFFF
+    
+    def get_rank(self, x):
+        return self.data[x] >> 16
+    
+    def set_parent(self, x, parent):
+        self.data[x] = (self.get_rank(x) << 16) | parent
+    
+    def set_rank(self, x, rank):
+        self.data[x] = (rank << 16) | self.get_parent(x)
+```
+
+2. Dynamic Allocation
+```python
+class DynamicDSU:
+    def __init__(self):
+        self.parent = {}
+        self.rank = {}
+    
+    def make_set(self, x):
+        if x not in self.parent:
+            self.parent[x] = x
+            self.rank[x] = 0
+    
+    def find(self, x):
+        if x not in self.parent:
+            self.make_set(x)
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+```
+
+## Performance Considerations
+
+1. Batch Operations
+```python
+def batch_union(self, pairs):
+    # Sort pairs to optimize cache usage
+    pairs.sort()
+    for x, y in pairs:
+        self.union(x, y)
+```
+
+2. Size-based Optimization
+```python
+class SizeOptimizedDSU:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.size = [1] * n
+    
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return
+        
+        # Always merge smaller component into larger
+        if self.size[px] < self.size[py]:
+            self.parent[px] = py
+            self.size[py] += self.size[px]
+        else:
+            self.parent[py] = px
+            self.size[px] += self.size[py]
+```
+
+## Common Pitfalls
+
+1. Missing Path Compression
+```python
+# Wrong
+def find_wrong(self, x):
+    while self.parent[x] != x:
+        x = self.parent[x]
+    return x
+
+# Correct
+def find_correct(self, x):
+    if self.parent[x] != x:
+        self.parent[x] = self.find_correct(self.parent[x])
+    return self.parent[x]
+```
+
+2. Incorrect Rank Update
+```python
+# Wrong
+def union_wrong(self, x, y):
+    px, py = self.find(x), self.find(y)
+    if px == py:
+        return
+    self.parent[py] = px
+    self.rank[px] += 1  # Always incrementing rank
+
+# Correct
+def union_correct(self, x, y):
+    px, py = self.find(x), self.find(y)
+    if px == py:
+        return
+    if self.rank[px] < self.rank[py]:
+        px, py = py, px
+    self.parent[py] = px
+    if self.rank[px] == self.rank[py]:
+        self.rank[px] += 1
+```
+
+3. Not Maintaining Component Count
+```python
+# Wrong
+def union_no_count(self, x, y):
+    px, py = self.find(x), self.find(y)
+    if px == py:
+        return
+    self.parent[py] = px  # Lost track of component count
+
+# Correct
+def union_with_count(self, x, y):
+    px, py = self.find(x), self.find(y)
+    if px == py:
+        return
+    self.parent[py] = px
+    self.components -= 1  # Track components
+```

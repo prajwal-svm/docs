@@ -1,0 +1,417 @@
+## Core Implementation
+
+### Basic Binary Search Tree
+```python
+class TreeNode:
+    def __init__(self, val=0):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.height = 1  # For AVL tree usage
+        
+class BST:
+    def __init__(self):
+        self.root = None
+        
+    def insert(self, val):
+        if not self.root:
+            self.root = TreeNode(val)
+            return
+        self._insert_recursive(self.root, val)
+    
+    def _insert_recursive(self, node, val):
+        if not node:
+            return TreeNode(val)
+        
+        if val < node.val:
+            node.left = self._insert_recursive(node.left, val)
+        else:
+            node.right = self._insert_recursive(node.right, val)
+        return node
+    
+    def search(self, val):
+        return self._search_recursive(self.root, val)
+    
+    def _search_recursive(self, node, val):
+        if not node or node.val == val:
+            return node
+            
+        if val < node.val:
+            return self._search_recursive(node.left, val)
+        return self._search_recursive(node.right, val)
+    
+    def delete(self, val):
+        self.root = self._delete_recursive(self.root, val)
+    
+    def _delete_recursive(self, node, val):
+        if not node:
+            return None
+            
+        if val < node.val:
+            node.left = self._delete_recursive(node.left, val)
+        elif val > node.val:
+            node.right = self._delete_recursive(node.right, val)
+        else:
+            # Node with one or no child
+            if not node.left:
+                return node.right
+            elif not node.right:
+                return node.left
+                
+            # Node with two children
+            successor = self._find_min(node.right)
+            node.val = successor.val
+            node.right = self._delete_recursive(node.right, successor.val)
+        
+        return node
+    
+    def _find_min(self, node):
+        current = node
+        while current.left:
+            current = current.left
+        return current
+```
+
+## Implementation Variations
+
+### 1. AVL Tree (Self-balancing BST)
+```python
+class AVLTree(BST):
+    def insert(self, val):
+        self.root = self._insert_recursive(self.root, val)
+    
+    def _insert_recursive(self, node, val):
+        # Normal BST insert
+        if not node:
+            return TreeNode(val)
+        
+        if val < node.val:
+            node.left = self._insert_recursive(node.left, val)
+        else:
+            node.right = self._insert_recursive(node.right, val)
+            
+        # Update height
+        node.height = 1 + max(self._get_height(node.left),
+                             self._get_height(node.right))
+        
+        # Get balance factor
+        balance = self._get_balance(node)
+        
+        # Balance the tree
+        # Left Left Case
+        if balance > 1 and val < node.left.val:
+            return self._rotate_right(node)
+            
+        # Right Right Case
+        if balance < -1 and val > node.right.val:
+            return self._rotate_left(node)
+            
+        # Left Right Case
+        if balance > 1 and val > node.left.val:
+            node.left = self._rotate_left(node.left)
+            return self._rotate_right(node)
+            
+        # Right Left Case
+        if balance < -1 and val < node.right.val:
+            node.right = self._rotate_right(node.right)
+            return self._rotate_left(node)
+            
+        return node
+```
+
+### 2. Threaded Binary Search Tree
+```python
+class ThreadedNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.is_threaded = False
+
+class ThreadedBST:
+    def __init__(self):
+        self.root = None
+    
+    def insert(self, val):
+        if not self.root:
+            self.root = ThreadedNode(val)
+            return
+            
+        current = self.root
+        while current:
+            if val < current.val:
+                if not current.left:
+                    current.left = ThreadedNode(val)
+                    current.left.right = current
+                    current.left.is_threaded = True
+                    break
+                current = current.left
+            else:
+                if not current.right or current.is_threaded:
+                    old_right = current.right
+                    current.right = ThreadedNode(val)
+                    current.right.right = old_right
+                    current.right.is_threaded = True
+                    current.is_threaded = False
+                    break
+                current = current.right
+```
+
+## Time Complexities
+
+| Operation     | BST (Average) | BST (Worst) | AVL Tree  | Threaded BST |
+|--------------|---------------|-------------|-----------|--------------|
+| Insert       | O(log n)      | O(n)        | O(log n)  | O(log n)     |
+| Delete       | O(log n)      | O(n)        | O(log n)  | O(log n)     |
+| Search       | O(log n)      | O(n)        | O(log n)  | O(log n)     |
+| Min/Max      | O(log n)      | O(n)        | O(log n)  | O(1)*        |
+| Successor    | O(log n)      | O(n)        | O(log n)  | O(1)         |
+| Predecessor  | O(log n)      | O(n)        | O(log n)  | O(1)         |
+| Traversal    | O(n)          | O(n)        | O(n)      | O(n)         |
+
+\* With additional pointers to min/max
+
+## Space Complexities
+
+| Implementation    | Space Complexity | Additional Notes                        |
+|------------------|------------------|----------------------------------------|
+| Basic BST        | O(n)            | No additional overhead                  |
+| AVL Tree         | O(n)            | Extra space for height information      |
+| Threaded BST     | O(n)            | Extra space for thread indicators       |
+| Balanced BST     | O(n)            | May need temp space during rebalancing  |
+
+## Common Data Structure Patterns
+
+1. Tree Traversal Patterns
+   - Inorder (sorted order)
+   - Preorder (copying tree)
+   - Postorder (deletion)
+   - Level-order (breadth-first)
+
+2. Range Query Patterns
+   - Find elements in range
+   - Count elements in range
+   - Find closest element
+
+3. Balancing Patterns
+   - Single rotations
+   - Double rotations
+   - Height balancing
+
+4. Predecessor/Successor
+   - Next greater element
+   - Previous smaller element
+   - Inorder traversal
+
+5. Path Patterns
+   - Root to leaf paths
+   - Lowest common ancestor
+   - Path sum problems
+
+6. Modification Patterns
+   - BST to greater sum tree
+   - Merge BSTs
+   - Split BST
+
+## Edge Cases to Consider
+
+1. Empty Tree
+```python
+if not self.root:
+    return None
+```
+
+2. Single Node
+```python
+if not root.left and not root.right:
+    return root.val
+```
+
+3. Duplicate Values
+```python
+# Option 1: Maintain count
+class NodeWithCount(TreeNode):
+    def __init__(self, val):
+        super().__init__(val)
+        self.count = 1
+
+# Option 2: Use left/right convention
+if val <= node.val:  # Allow duplicates to left
+    node.left = self._insert_recursive(node.left, val)
+```
+
+4. Unbalanced Input
+```python
+# Handle sorted input causing linear tree
+def insert_balanced(self, sorted_vals):
+    if not sorted_vals:
+        return None
+    mid = len(sorted_vals) // 2
+    root = TreeNode(sorted_vals[mid])
+    root.left = self.insert_balanced(sorted_vals[:mid])
+    root.right = self.insert_balanced(sorted_vals[mid + 1:])
+    return root
+```
+
+## Optimization Techniques
+
+1. Caching Height/Size
+```python
+class OptimizedNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.height = 1
+        self.size = 1
+        self.sum = val  # Subtree sum
+```
+
+2. Parent Pointers
+```python
+class NodeWithParent:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.parent = None
+```
+
+3. Bulk Operations
+```python
+def build_from_sorted_array(self, arr):
+    def build(start, end):
+        if start > end:
+            return None
+        mid = (start + end) // 2
+        node = TreeNode(arr[mid])
+        node.left = build(start, mid - 1)
+        node.right = build(mid + 1, end)
+        return node
+    
+    self.root = build(0, len(arr) - 1)
+```
+
+## Memory Management
+
+1. Node Pooling
+```python
+class NodePool:
+    def __init__(self, size=1000):
+        self.pool = [TreeNode(0) for _ in range(size)]
+        self.available = list(range(size))
+    
+    def get_node(self, val):
+        if not self.available:
+            return TreeNode(val)
+        idx = self.available.pop()
+        node = self.pool[idx]
+        node.val = val
+        node.left = node.right = None
+        return node
+
+    def return_node(self, node):
+        if len(self.available) < len(self.pool):
+            self.available.append(node)
+```
+
+2. Tree Cleanup
+```python
+def clear_tree(self):
+    def recursive_clear(node):
+        if not node:
+            return
+        recursive_clear(node.left)
+        recursive_clear(node.right)
+        node.left = node.right = None
+        node.val = None
+    
+    recursive_clear(self.root)
+    self.root = None
+```
+
+## Performance Considerations
+
+1. Iterative vs Recursive
+```python
+def search_iterative(self, val):
+    current = self.root
+    while current:
+        if current.val == val:
+            return current
+        current = current.left if val < current.val else current.right
+    return None
+```
+
+2. Batch Processing
+```python
+def process_range(self, start, end, batch_size=1000):
+    result = []
+    current = self.find_ceiling(start)
+    
+    while current and current.val <= end:
+        result.append(current.val)
+        if len(result) == batch_size:
+            process_batch(result)
+            result = []
+        current = self.successor(current)
+```
+
+## Common Pitfalls
+
+1. Incorrect Balance Handling
+```python
+# Wrong
+def is_balanced(self, root):
+    if not root:
+        return True
+    return abs(height(root.left) - height(root.right)) <= 1
+
+# Correct
+def is_balanced(self, root):
+    if not root:
+        return True
+    left_height = self._get_height(root.left)
+    right_height = self._get_height(root.right)
+    return (abs(left_height - right_height) <= 1 and
+            self.is_balanced(root.left) and
+            self.is_balanced(root.right))
+```
+
+2. Memory Leaks in Deletion
+```python
+# Wrong
+def delete(self, node):
+    if node.right:
+        node.val = successor.val
+        node.right = None  # Memory leak
+
+# Correct
+def delete(self, node):
+    if node.right:
+        successor = self._find_min(node.right)
+        node.val = successor.val
+        node.right = self._delete_recursive(node.right, successor.val)
+```
+
+3. Incorrect BST Property Validation
+```python
+# Wrong: Doesn't check subtrees properly
+def is_bst(self, root):
+    if not root:
+        return True
+    if root.left and root.left.val > root.val:
+        return False
+    if root.right and root.right.val < root.val:
+        return False
+    return True
+
+# Correct
+def is_bst(self, root, min_val=float('-inf'), max_val=float('inf')):
+    if not root:
+        return True
+    if root.val <= min_val or root.val >= max_val:
+        return False
+    return (self.is_bst(root.left, min_val, root.val) and
+            self.is_bst(root.right, root.val, max_val))
+```

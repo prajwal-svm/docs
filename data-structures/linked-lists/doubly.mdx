@@ -1,0 +1,395 @@
+---
+title: 'Doubly Linked List'
+description: 'Complete guide to Doubly Linked List implementation, operations, and sorting algorithms'
+---
+
+## Basic Structure
+
+```python
+class Node:
+    def __init__(self, val=0):
+        self.val = val
+        self.prev = None
+        self.next = None
+
+class DoublyLinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None
+        self.size = 0
+    
+    def __str__(self):
+        curr = self.head
+        nodes = []
+        while curr:
+            nodes.append(str(curr.val))
+            curr = curr.next
+        return ' ⟷ '.join(nodes)
+```
+
+## Insertion Operations
+
+```python
+def insert_at_beginning(self, val: int) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    new_node = Node(val)
+    self.size += 1
+    
+    if not self.head:
+        self.head = self.tail = new_node
+        return
+    
+    new_node.next = self.head
+    self.head.prev = new_node
+    self.head = new_node
+
+def insert_at_end(self, val: int) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    new_node = Node(val)
+    self.size += 1
+    
+    if not self.tail:
+        self.head = self.tail = new_node
+        return
+    
+    new_node.prev = self.tail
+    self.tail.next = new_node
+    self.tail = new_node
+
+def insert_after(self, node: Node, val: int) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    if not node:
+        return
+    
+    new_node = Node(val)
+    new_node.next = node.next
+    new_node.prev = node
+    
+    if node.next:
+        node.next.prev = new_node
+    else:
+        self.tail = new_node
+        
+    node.next = new_node
+    self.size += 1
+
+def insert_before(self, node: Node, val: int) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    if not node:
+        return
+    
+    new_node = Node(val)
+    new_node.prev = node.prev
+    new_node.next = node
+    
+    if node.prev:
+        node.prev.next = new_node
+    else:
+        self.head = new_node
+        
+    node.prev = new_node
+    self.size += 1
+
+def insert_at_position(self, position: int, val: int) -> None:
+    """
+    Time Complexity: O(n)
+    """
+    if position < 0 or position > self.size:
+        raise ValueError("Invalid position")
+    
+    if position == 0:
+        self.insert_at_beginning(val)
+        return
+    
+    if position == self.size:
+        self.insert_at_end(val)
+        return
+    
+    curr = self.head
+    for _ in range(position):
+        curr = curr.next
+    
+    self.insert_before(curr, val)
+```
+
+## Deletion Operations
+
+```python
+def delete_at_beginning(self) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    if not self.head:
+        return
+    
+    self.size -= 1
+    if self.head == self.tail:
+        self.head = self.tail = None
+        return
+    
+    self.head = self.head.next
+    self.head.prev = None
+
+def delete_at_end(self) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    if not self.tail:
+        return
+    
+    self.size -= 1
+    if self.head == self.tail:
+        self.head = self.tail = None
+        return
+    
+    self.tail = self.tail.prev
+    self.tail.next = None
+
+def delete_node(self, node: Node) -> None:
+    """
+    Time Complexity: O(1)
+    """
+    if not node:
+        return
+    
+    self.size -= 1
+    
+    if node == self.head:
+        self.delete_at_beginning()
+        return
+    
+    if node == self.tail:
+        self.delete_at_end()
+        return
+    
+    node.prev.next = node.next
+    node.next.prev = node.prev
+
+def delete_value(self, val: int) -> None:
+    """
+    Time Complexity: O(n)
+    """
+    curr = self.head
+    while curr:
+        if curr.val == val:
+            self.delete_node(curr)
+            return
+        curr = curr.next
+```
+
+## Reversal Operations
+
+```python
+def reverse(self) -> None:
+    """
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    if not self.head or not self.head.next:
+        return
+    
+    curr = self.head
+    self.tail = curr
+    
+    while curr:
+        # Swap prev and next pointers
+        curr.prev, curr.next = curr.next, curr.prev
+        # Move to next node (which is now prev due to swap)
+        curr = curr.prev
+    
+    # Update head to last node
+    self.head = self.tail
+    while self.head.prev:
+        self.head = self.head.prev
+
+def reverse_between(self, left: int, right: int) -> None:
+    """
+    Reverse a portion of the list
+    Time Complexity: O(n)
+    """
+    if left >= right:
+        return
+    
+    # Find left and right nodes
+    left_node = self.head
+    for _ in range(left - 1):
+        left_node = left_node.next
+    
+    right_node = left_node
+    for _ in range(right - left):
+        right_node = right_node.next
+    
+    # Reverse the portion
+    curr = left_node
+    prev = left_node.prev
+    
+    while curr != right_node.next:
+        next_temp = curr.next
+        curr.next = prev
+        curr.prev = next_temp
+        prev = curr
+        curr = next_temp
+    
+    # Connect with rest of the list
+    if left_node.prev:
+        left_node.prev.next = right_node
+    else:
+        self.head = right_node
+    
+    if right_node.next:
+        right_node.next.prev = left_node
+    else:
+        self.tail = left_node
+```
+
+## QuickSort Implementation
+
+```python
+def quicksort(self) -> None:
+    """
+    QuickSort implementation for doubly linked list
+    Time Complexity: O(n log n)
+    Space Complexity: O(log n)
+    """
+    def partition(start: Node, end: Node) -> Node:
+        if start == end or not start or not end:
+            return start
+        
+        pivot = end.val
+        i = start.prev
+        curr = start
+        
+        # Partition around pivot
+        while curr != end:
+            if curr.val <= pivot:
+                i = i.next if i else start
+                i.val, curr.val = curr.val, i.val
+            curr = curr.next
+        
+        i = i.next if i else start
+        i.val, end.val = end.val, i.val
+        return i
+    
+    def quicksort_recursive(start: Node, end: Node) -> None:
+        if start and end and start != end and start != end.next:
+            pivot = partition(start, end)
+            quicksort_recursive(start, pivot.prev)
+            quicksort_recursive(pivot.next, end)
+    
+    if self.head and self.head != self.tail:
+        quicksort_recursive(self.head, self.tail)
+```
+
+## MergeSort Implementation
+
+```python
+def mergesort(self) -> None:
+    """
+    MergeSort implementation for doubly linked list
+    Time Complexity: O(n log n)
+    Space Complexity: O(log n)
+    """
+    def get_middle(head: Node) -> Node:
+        if not head or not head.next:
+            return head
+        
+        slow = fast = head
+        while fast.next and fast.next.next:
+            slow = slow.next
+            fast = fast.next.next
+        
+        return slow
+    
+    def merge(left: Node, right: Node) -> Node:
+        if not left:
+            return right
+        if not right:
+            return left
+        
+        if left.val <= right.val:
+            result = left
+            result.next = merge(left.next, right)
+            if result.next:
+                result.next.prev = result
+        else:
+            result = right
+            result.next = merge(left, right.next)
+            if result.next:
+                result.next.prev = result
+        
+        return result
+    
+    def mergesort_recursive(head: Node) -> Node:
+        if not head or not head.next:
+            return head
+        
+        # Split list into two halves
+        middle = get_middle(head)
+        right_head = middle.next
+        middle.next = None
+        if right_head:
+            right_head.prev = None
+        
+        # Recursively sort both halves
+        left = mergesort_recursive(head)
+        right = mergesort_recursive(right_head)
+        
+        # Merge sorted halves
+        return merge(left, right)
+    
+    if self.head and self.head.next:
+        self.head = mergesort_recursive(self.head)
+        
+        # Update tail
+        curr = self.head
+        while curr.next:
+            curr = curr.next
+        self.tail = curr
+```
+
+## Utility Functions
+
+```python
+def is_palindrome(self) -> bool:
+    """
+    Check if list is palindrome
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    if not self.head or not self.head.next:
+        return True
+    
+    left = self.head
+    right = self.tail
+    
+    while left != right and left.prev != right:
+        if left.val != right.val:
+            return False
+        left = left.next
+        right = right.prev
+    
+    return True
+
+def clone(self) -> 'DoublyLinkedList':
+    """
+    Create a deep copy of the list
+    Time Complexity: O(n)
+    Space Complexity: O(n)
+    """
+    new_list = DoublyLinkedList()
+    curr = self.head
+    
+    while curr:
+        new_list.insert_at_end(curr.val)
+        curr = curr.next
+    
+    return new_list
+```

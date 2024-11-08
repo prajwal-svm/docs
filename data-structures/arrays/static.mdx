@@ -1,0 +1,266 @@
+---
+title: 'Static Arrays'
+description: 'Understanding Static Arrays in Python and their implementations'
+---
+
+## Introduction
+
+Static arrays are fixed-size containers storing elements of the same data type in contiguous memory locations. In Python, traditional arrays are implemented through specialized modules like `array` and `numpy`.
+
+## Basic Implementation
+
+```python
+from array import array
+
+# Creating static arrays of different types
+int_array = array('i', [1, 2, 3, 4, 5])  # signed integer
+float_array = array('d', [1.0, 2.0, 3.0])  # double precision float
+```
+
+## Time Complexity
+
+| Operation | Time Complexity | Description |
+|-----------|----------------|-------------|
+| Access    | O(1)           | Direct access by index |
+| Search    | O(n)           | Linear search in unsorted array |
+| Insert    | O(n)           | Need to shift elements |
+| Delete    | O(n)           | Need to shift elements |
+| Append    | O(1)*          | When array isn't full |
+
+## Memory Complexity
+
+```python
+import sys
+from array import array
+
+# Memory comparison
+numbers_list = [1, 2, 3, 4, 5]
+numbers_array = array('i', [1, 2, 3, 4, 5])
+
+print(f"List size: {sys.getsizeof(numbers_list)} bytes")
+print(f"Array size: {sys.getsizeof(numbers_array)} bytes")
+```
+
+## Basic Operations
+
+### Accessing Elements
+```python
+# Direct access - O(1)
+def access_element(arr, index):
+    if 0 <= index < len(arr):
+        return arr[index]
+    raise IndexError("Index out of bounds")
+
+# Example usage
+arr = array('i', [1, 2, 3, 4, 5])
+element = access_element(arr, 2)  # Returns 3
+```
+
+### Searching
+```python
+# Linear search - O(n)
+def linear_search(arr, target):
+    for i in range(len(arr)):
+        if arr[i] == target:
+            return i
+    return -1
+
+# Binary search (for sorted arrays) - O(log n)
+def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+            
+    return -1
+```
+
+### Insertion
+```python
+def insert_at_index(arr, index, element):
+    """
+    Insert element at specific index
+    Time Complexity: O(n)
+    """
+    if not isinstance(arr, list):
+        arr = list(arr)  # Convert to list for insertion
+        
+    if 0 <= index <= len(arr):
+        arr.insert(index, element)
+        return array('i', arr)  # Convert back to array
+    raise IndexError("Invalid index")
+```
+
+### Deletion
+```python
+def delete_at_index(arr, index):
+    """
+    Delete element at specific index
+    Time Complexity: O(n)
+    """
+    if not isinstance(arr, list):
+        arr = list(arr)
+        
+    if 0 <= index < len(arr):
+        arr.pop(index)
+        return array('i', arr)
+    raise IndexError("Invalid index")
+```
+
+## Common Problems and Solutions
+
+### 1. Array Rotation
+```python
+def rotate_array(arr, k):
+    """
+    Rotate array by k positions
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    n = len(arr)
+    k = k % n  # Normalize k
+    
+    def reverse(start, end):
+        while start < end:
+            arr[start], arr[end] = arr[end], arr[start]
+            start += 1
+            end -= 1
+    
+    # Reverse entire array
+    reverse(0, n-1)
+    # Reverse first k elements
+    reverse(0, k-1)
+    # Reverse remaining elements
+    reverse(k, n-1)
+    
+    return arr
+```
+
+### 2. Finding Maximum Subarray
+```python
+def max_subarray(arr):
+    """
+    Find maximum sum subarray using Kadane's Algorithm
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    max_sum = current_sum = arr[0]
+    
+    for num in arr[1:]:
+        current_sum = max(num, current_sum + num)
+        max_sum = max(max_sum, current_sum)
+    
+    return max_sum
+```
+
+### 3. Array Rearrangement
+```python
+def rearrange_array(arr):
+    """
+    Rearrange array so that arr[i] becomes arr[arr[i]]
+    Time Complexity: O(n)
+    Space Complexity: O(1)
+    """
+    n = len(arr)
+    # First step: Increase all elements by (arr[arr[i]] % n) * n
+    for i in range(n):
+        arr[i] += (arr[arr[i]] % n) * n
+    
+    # Second step: Divide all elements by n
+    for i in range(n):
+        arr[i] //= n
+    
+    return arr
+```
+
+## Advanced Optimizations
+
+### Cache-Friendly Traversal
+```python
+def cache_friendly_traverse(arr):
+    """
+    Traverse array in a cache-friendly manner
+    """
+    CACHE_LINE_SIZE = 64  # Typical cache line size in bytes
+    ELEMENTS_PER_LINE = CACHE_LINE_SIZE // 4  # For 4-byte integers
+    
+    n = len(arr)
+    for i in range(0, n, ELEMENTS_PER_LINE):
+        end = min(i + ELEMENTS_PER_LINE, n)
+        for j in range(i, end):
+            # Process arr[j]
+            pass
+```
+
+### SIMD-Like Operations
+```python
+import numpy as np
+
+def vectorized_operations(arr):
+    """
+    Perform vectorized operations using NumPy
+    """
+    # Convert to NumPy array for vectorized operations
+    np_arr = np.array(arr)
+    
+    # Vectorized calculations
+    squared = np_arr ** 2
+    doubled = np_arr * 2
+    filtered = np_arr[np_arr > 5]
+    
+    return squared, doubled, filtered
+```
+
+## Memory Management
+
+### Memory Alignment
+```python
+import numpy as np
+
+def create_aligned_array(size):
+    """
+    Create memory-aligned array using NumPy
+    """
+    # Create array aligned to 64-byte boundary
+    aligned_array = np.zeros(size, dtype=np.int32, align=64)
+    return aligned_array
+```
+
+## Common Pitfalls and Best Practices
+
+### 1. Index Out of Bounds
+```python
+def safe_array_access(arr, index):
+    """
+    Safely access array elements
+    """
+    try:
+        return arr[index]
+    except IndexError:
+        return None  # or handle error appropriately
+```
+
+### 2. Memory Efficiency
+```python
+def memory_efficient_array():
+    """
+    Create memory-efficient array for integers
+    """
+    # Use array module for primitive types
+    int_array = array('i', range(1000))  # More efficient than list
+    return int_array
+```
+
+## Interview Tips
+
+1. Always verify array bounds before access
+2. Consider edge cases: empty array, single element, duplicates
+3. Look for opportunities to use two-pointer technique
+4. Consider sorting if it helps solve the problem
+5. Think about space-time tradeoffs

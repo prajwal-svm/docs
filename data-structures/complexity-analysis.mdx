@@ -1,0 +1,1314 @@
+---
+title: "Complexity Analysis"
+description: "Understanding time and space complexity in algorithms and data structures"
+---
+
+## Introduction to Complexity Analysis
+
+Complexity Analysis helps us evaluate the efficiency of algorithms in terms of:
+
+- Time Complexity: How runtime grows with input size
+- Space Complexity: How memory usage grows with input size
+
+## Big O Notation
+
+Big O notation describes the upper bound of growth rate of an algorithm.
+
+### Common Time Complexities
+
+```python
+# O(1) - Constant Time
+def constant_time_example(arr):
+    """Access first element of array"""
+    return arr[0] if arr else None
+
+# O(log n) - Logarithmic Time
+def binary_search(arr, target):
+    """Binary search in sorted array"""
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+
+# O(n) - Linear Time
+def linear_time_example(arr):
+    """Sum all elements in array"""
+    total = 0
+    for num in arr:
+        total += num
+    return total
+
+# O(n log n) - Linearithmic Time
+def merge_sort(arr):
+    """Merge sort implementation"""
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+
+    return merge(left, right)
+
+def merge(left, right):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result
+
+# O(n²) - Quadratic Time
+def bubble_sort(arr):
+    """Bubble sort implementation"""
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr
+
+# O(2ⁿ) - Exponential Time
+def fibonacci_recursive(n):
+    """Recursive fibonacci (inefficient)"""
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)
+```
+
+## Time Complexity Analysis
+
+### Basic Operations
+
+| Operation                        | Time Complexity |
+| -------------------------------- | --------------- |
+| Arithmetic operations            | O(1)            |
+| Assignment statements            | O(1)            |
+| Comparisons                      | O(1)            |
+| Accessing array element by index | O(1)            |
+| Loop over n elements             | O(n)            |
+| Nested loop over n elements      | O(n²)           |
+
+### Common Data Structure Operations
+
+#### Array/List Operations
+
+```python
+# Time Complexities for List Operations
+def list_operations_example():
+    arr = []
+
+    # O(1) operations
+    arr.append(1)       # Add to end
+    arr.pop()          # Remove from end
+    value = arr[0]     # Access by index
+
+    # O(n) operations
+    arr.insert(0, 1)   # Insert at beginning
+    arr.pop(0)         # Remove from beginning
+    arr.remove(1)      # Remove first occurrence
+    1 in arr           # Search for element
+```
+
+#### Dictionary Operations
+
+```python
+# Time Complexities for Dictionary Operations
+def dict_operations_example():
+    d = {}
+
+    # O(1) average case operations
+    d['key'] = 'value'  # Insert
+    value = d['key']    # Access
+    del d['key']        # Delete
+    'key' in d          # Check existence
+```
+
+#### Set Operations
+
+```python
+# Time Complexities for Set Operations
+def set_operations_example():
+    s = set()
+
+    # O(1) average case operations
+    s.add(1)           # Add element
+    s.remove(1)        # Remove element
+    1 in s             # Check existence
+
+    # O(n) operations where n is size of smaller set
+    s1 = {1, 2, 3}
+    s2 = {3, 4, 5}
+    s1.union(s2)       # Union
+    s1.intersection(s2)  # Intersection
+```
+
+## Space Complexity
+
+### Memory Usage Examples
+
+```python
+def space_complexity_examples():
+    # O(1) Space - Constant
+    def constant_space(n):
+        x = 5
+        y = 10
+        z = x + y
+        return z
+
+    # O(n) Space - Linear
+    def linear_space(n):
+        arr = []
+        for i in range(n):
+            arr.append(i)
+        return arr
+
+    # O(n²) Space - Quadratic
+    def quadratic_space(n):
+        matrix = [[0] * n for _ in range(n)]
+        return matrix
+```
+
+## Analyzing Recursive Algorithms
+
+### Recursion Tree Method
+
+```python
+def recursive_analysis_example(n):
+    """Example of recursive function analysis"""
+    if n <= 1:
+        return 1
+
+    return recursive_analysis_example(n-1) + recursive_analysis_example(n-1)
+
+# Time Complexity: O(2ⁿ)
+# Space Complexity: O(n) due to call stack
+```
+
+## Best, Average, and Worst Case
+
+```python
+def search_example(arr, target):
+    """
+    Example showing different cases:
+    Best Case: O(1) - element is first
+    Average Case: O(n/2) - element is in middle
+    Worst Case: O(n) - element is last or not present
+    """
+    for i, num in enumerate(arr):
+        if num == target:
+            return i
+    return -1
+```
+
+## Amortized Analysis
+
+```python
+class DynamicArray:
+    """
+    Example of amortized analysis with dynamic array
+    Amortized time for append: O(1)
+    """
+    def __init__(self):
+        self.arr = [None] * 1
+        self.size = 0
+
+    def append(self, element):
+        if self.size == len(self.arr):
+            # Double array size when full
+            new_arr = [None] * (2 * len(self.arr))
+            for i in range(self.size):
+                new_arr[i] = self.arr[i]
+            self.arr = new_arr
+
+        self.arr[self.size] = element
+        self.size += 1
+```
+
+## Complexity Comparison Chart
+
+| Complexity | Name         | Example             |
+| ---------- | ------------ | ------------------- |
+| O(1)       | Constant     | Array access        |
+| O(log n)   | Logarithmic  | Binary search       |
+| O(n)       | Linear       | Linear search       |
+| O(n log n) | Linearithmic | Merge sort          |
+| O(n²)      | Quadratic    | Bubble sort         |
+| O(2ⁿ)      | Exponential  | Recursive Fibonacci |
+| O(n!)      | Factorial    | Permutations        |
+
+## Common Mistakes in Complexity Analysis
+
+```python
+def common_mistakes_examples():
+    # Mistake 1: Ignoring constants
+    def mistake1(n):
+        # Still O(n), not O(2n)
+        for i in range(n):
+            print(i)
+        for i in range(n):
+            print(i)
+
+    # Mistake 2: Wrong nested loop analysis
+    def mistake2(n, m):
+        # O(n*m), not O(n²)
+        for i in range(n):
+            for j in range(m):
+                print(i, j)
+
+    # Mistake 3: Ignoring space complexity
+    def mistake3(n):
+        # Time: O(n), Space: O(n)
+        return [i for i in range(n)]
+```
+
+## Detailed Time Complexity Examples
+
+### Linear Search Variations
+
+```python
+def linear_search_variations():
+    """Different variations of linear search showing complexity analysis"""
+
+    # Basic Linear Search - O(n)
+    def basic_search(arr, target):
+        for i in range(len(arr)):
+            if arr[i] == target:
+                return i
+        return -1
+
+    # Early Exit Linear Search - Still O(n), but better average case
+    def early_exit_search(arr, target):
+        for i, num in enumerate(arr):
+            if num == target:
+                return i
+            elif num > target:  # If array is sorted
+                return -1
+        return -1
+
+    # Multiple Target Search - O(n)
+    def find_all_occurrences(arr, target):
+        return [i for i, num in enumerate(arr) if num == target]
+
+    # Two-Pointer Linear Search - O(n)
+    def two_pointer_search(arr, target):
+        left, right = 0, len(arr) - 1
+        while left <= right:
+            if arr[left] == target:
+                return left
+            if arr[right] == target:
+                return right
+            left += 1
+            right -= 1
+        return -1
+```
+
+### Binary Search Variations
+
+```python
+def binary_search_variations():
+    """Different implementations of binary search with complexity analysis"""
+
+    # Standard Binary Search - O(log n)
+    def standard_binary_search(arr, target):
+        left, right = 0, len(arr) - 1
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                return mid
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return -1
+
+    # First Occurrence - O(log n)
+    def first_occurrence(arr, target):
+        left, right = 0, len(arr) - 1
+        result = -1
+
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                result = mid
+                right = mid - 1  # Continue searching left
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return result
+
+    # Last Occurrence - O(log n)
+    def last_occurrence(arr, target):
+        left, right = 0, len(arr) - 1
+        result = -1
+
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                result = mid
+                left = mid + 1  # Continue searching right
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return result
+
+    # Count Occurrences - O(log n)
+    def count_occurrences(arr, target):
+        first = first_occurrence(arr, target)
+        if first == -1:
+            return 0
+        last = last_occurrence(arr, target)
+        return last - first + 1
+```
+
+### Sorting Algorithm Complexities
+
+```python
+def sorting_algorithms():
+    """Different sorting algorithms with their complexities"""
+
+    # Bubble Sort - O(n²)
+    def bubble_sort(arr):
+        n = len(arr)
+        for i in range(n):
+            # Flag for optimization
+            swapped = False
+            for j in range(0, n - i - 1):
+                if arr[j] > arr[j + 1]:
+                    arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                    swapped = True
+            if not swapped:
+                break
+        return arr
+
+    # Selection Sort - O(n²)
+    def selection_sort(arr):
+        n = len(arr)
+        for i in range(n):
+            min_idx = i
+            for j in range(i + 1, n):
+                if arr[j] < arr[min_idx]:
+                    min_idx = j
+            arr[i], arr[min_idx] = arr[min_idx], arr[i]
+        return arr
+
+    # Insertion Sort - O(n²)
+    def insertion_sort(arr):
+        for i in range(1, len(arr)):
+            key = arr[i]
+            j = i - 1
+            while j >= 0 and arr[j] > key:
+                arr[j + 1] = arr[j]
+                j -= 1
+            arr[j + 1] = key
+        return arr
+
+    # Quick Sort - O(n log n) average, O(n²) worst
+    def quick_sort(arr):
+        if len(arr) <= 1:
+            return arr
+
+        pivot = arr[len(arr) // 2]
+        left = [x for x in arr if x < pivot]
+        middle = [x for x in arr if x == pivot]
+        right = [x for x in arr if x > pivot]
+
+        return quick_sort(left) + middle + quick_sort(right)
+```
+
+### Complex Data Structure Operations
+
+```python
+class ComplexDataStructures:
+    """Examples of operations on complex data structures"""
+
+    class TreeNode:
+        def __init__(self, val=0):
+            self.val = val
+            self.left = None
+            self.right = None
+
+    # Tree Traversal - O(n)
+    def tree_traversals(self, root):
+        def inorder(node):
+            if not node:
+                return []
+            return inorder(node.left) + [node.val] + inorder(node.right)
+
+        def preorder(node):
+            if not node:
+                return []
+            return [node.val] + preorder(node.left) + preorder(node.right)
+
+        def postorder(node):
+            if not node:
+                return []
+            return postorder(node.left) + postorder(node.right) + [node.val]
+
+        # Level Order - O(n) time, O(w) space where w is max width
+        def level_order(node):
+            if not node:
+                return []
+
+            result = []
+            queue = [node]
+
+            while queue:
+                level = []
+                level_size = len(queue)
+
+                for _ in range(level_size):
+                    curr = queue.pop(0)
+                    level.append(curr.val)
+
+                    if curr.left:
+                        queue.append(curr.left)
+                    if curr.right:
+                        queue.append(curr.right)
+
+                result.append(level)
+
+            return result
+```
+
+### Dynamic Programming Examples
+
+```python
+def dynamic_programming_examples():
+    """Examples showing complexity analysis in dynamic programming"""
+
+    # Fibonacci with different implementations
+
+    # Recursive - O(2ⁿ)
+    def fib_recursive(n):
+        if n <= 1:
+            return n
+        return fib_recursive(n-1) + fib_recursive(n-2)
+
+    # Memoization (Top-Down) - O(n) time, O(n) space
+    def fib_memo(n, memo={}):
+        if n in memo:
+            return memo[n]
+        if n <= 1:
+            return n
+        memo[n] = fib_memo(n-1, memo) + fib_memo(n-2, memo)
+        return memo[n]
+
+    # Tabulation (Bottom-Up) - O(n) time, O(n) space
+    def fib_tabulation(n):
+        if n <= 1:
+            return n
+
+        dp = [0] * (n + 1)
+        dp[1] = 1
+
+        for i in range(2, n + 1):
+            dp[i] = dp[i-1] + dp[i-2]
+
+        return dp[n]
+
+    # Space-Optimized - O(n) time, O(1) space
+    def fib_optimized(n):
+        if n <= 1:
+            return n
+
+        prev2, prev1 = 0, 1
+
+        for _ in range(2, n + 1):
+            curr = prev1 + prev2
+            prev2 = prev1
+            prev1 = curr
+
+        return prev1
+```
+
+### Advanced Space Complexity Examples
+
+```python
+def space_complexity_examples():
+    """Examples demonstrating different space complexities"""
+
+    # Constant Space - O(1)
+    def constant_space(n):
+        result = 0
+        for i in range(n):
+            result += i
+        return result
+
+    # Linear Space with input modification
+    def linear_space(arr):
+        # Space: O(1) as we modify input array
+        for i in range(len(arr)):
+            arr[i] = arr[i] * 2
+
+    # Linear Space with extra array
+    def linear_space_extra(arr):
+        # Space: O(n) for new array
+        return [x * 2 for x in arr]
+
+    # Quadratic Space
+    def quadratic_space(n):
+        # Space: O(n²)
+        matrix = [[0] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(n):
+                matrix[i][j] = i * j
+        return matrix
+
+    # Space in Recursion
+    def recursive_space(n):
+        # Space: O(n) due to call stack
+        if n <= 1:
+            return 1
+        return recursive_space(n - 1) + recursive_space(n - 1)
+```
+
+### Analyzing Complex Loops
+
+```python
+def complex_loop_analysis():
+    """Examples of analyzing complex loop structures"""
+
+    # Multiple Variable Loops - O(a + b)
+    def multiple_variables(a, b):
+        for i in range(a):
+            print(i)
+        for j in range(b):
+            print(j)
+
+    # Nested Loops with Different Ranges - O(n*m)
+    def nested_different_ranges(n, m):
+        for i in range(n):
+            for j in range(m):
+                print(i, j)
+
+    # Logarithmic Loops - O(log n)
+    def logarithmic_loop(n):
+        i = n
+        while i > 0:
+            print(i)
+            i = i // 2
+
+    # Combined Complexity - O(n log n)
+    def combined_complexity(n):
+        # O(n) loop
+        for i in range(n):
+            # O(log n) loop
+            j = n
+            while j > 0:
+                print(i, j)
+                j = j // 2
+```
+
+## Graph Algorithm Complexities
+
+### Different Graph Representations
+
+```python
+class GraphComplexity:
+    """Analyzing space and time complexities of different graph representations"""
+
+    # Adjacency Matrix
+    class AdjacencyMatrix:
+        def __init__(self, vertices):
+            # Space Complexity: O(V²)
+            self.V = vertices
+            self.graph = [[0] * vertices for _ in range(vertices)]
+
+        # Time: O(1)
+        def add_edge(self, v1, v2, weight=1):
+            self.graph[v1][v2] = weight
+
+        # Time: O(V)
+        def get_neighbors(self, vertex):
+            return [i for i in range(self.V) if self.graph[vertex][i] > 0]
+
+    # Adjacency List
+    class AdjacencyList:
+        def __init__(self, vertices):
+            # Space Complexity: O(V + E)
+            self.V = vertices
+            self.graph = [[] for _ in range(vertices)]
+
+        # Time: O(1)
+        def add_edge(self, v1, v2, weight=1):
+            self.graph[v1].append((v2, weight))
+
+        # Time: O(degree(vertex))
+        def get_neighbors(self, vertex):
+            return [v for v, w in self.graph[vertex]]
+```
+
+### Advanced Graph Algorithms
+
+```python
+class AdvancedGraphAlgorithms:
+    """Complex graph algorithms with detailed complexity analysis"""
+
+    def __init__(self, vertices):
+        self.V = vertices
+        self.graph = [[] for _ in range(vertices)]
+
+    # Kosaraju's Algorithm for Strongly Connected Components
+    # Time: O(V + E), Space: O(V)
+    def kosaraju_scc(self):
+        def dfs_first_pass(vertex, visited, stack):
+            visited[vertex] = True
+            for neighbor in self.graph[vertex]:
+                if not visited[neighbor]:
+                    dfs_first_pass(neighbor, visited, stack)
+            stack.append(vertex)
+
+        def dfs_second_pass(vertex, visited, scc):
+            visited[vertex] = True
+            scc.append(vertex)
+            for neighbor in reversed_graph[vertex]:
+                if not visited[neighbor]:
+                    dfs_second_pass(neighbor, visited, scc)
+
+        # First Pass
+        visited = [False] * self.V
+        stack = []
+        for vertex in range(self.V):
+            if not visited[vertex]:
+                dfs_first_pass(vertex, visited, stack)
+
+        # Create reversed graph
+        reversed_graph = [[] for _ in range(self.V)]
+        for vertex in range(self.V):
+            for neighbor in self.graph[vertex]:
+                reversed_graph[neighbor].append(vertex)
+
+        # Second Pass
+        visited = [False] * self.V
+        sccs = []
+        while stack:
+            vertex = stack.pop()
+            if not visited[vertex]:
+                current_scc = []
+                dfs_second_pass(vertex, visited, current_scc)
+                sccs.append(current_scc)
+
+        return sccs
+
+    # Bellman-Ford Algorithm with Optimization
+    # Time: O(VE), Space: O(V)
+    def bellman_ford_optimized(self, source):
+        distances = [float('inf')] * self.V
+        distances[source] = 0
+
+        # Optimize by tracking which vertices were updated
+        updated_vertices = {source}
+
+        for _ in range(self.V - 1):
+            current_updated = set()
+            for vertex in updated_vertices:
+                for neighbor, weight in self.graph[vertex]:
+                    if distances[vertex] + weight < distances[neighbor]:
+                        distances[neighbor] = distances[vertex] + weight
+                        current_updated.add(neighbor)
+            if not current_updated:
+                break
+            updated_vertices = current_updated
+
+        # Check for negative cycles
+        for vertex in range(self.V):
+            for neighbor, weight in self.graph[vertex]:
+                if distances[vertex] + weight < distances[neighbor]:
+                    raise ValueError("Graph contains negative cycle")
+
+        return distances
+```
+
+### Advanced Tree Algorithms
+
+```python
+class AdvancedTreeAlgorithms:
+    """Complex tree algorithms with their complexity analysis"""
+
+    class TreeNode:
+        def __init__(self, val=0):
+            self.val = val
+            self.left = None
+            self.right = None
+
+    # Red-Black Tree Operations
+    class RedBlackNode:
+        def __init__(self, val):
+            self.val = val
+            self.left = None
+            self.right = None
+            self.color = "RED"
+            self.parent = None
+
+    # Time: O(log n) for all operations
+    class RedBlackTree:
+        def __init__(self):
+            self.NIL = RedBlackNode(None)
+            self.NIL.color = "BLACK"
+            self.root = self.NIL
+
+        def left_rotate(self, x):
+            y = x.right
+            x.right = y.left
+            if y.left != self.NIL:
+                y.left.parent = x
+            y.parent = x.parent
+            if x.parent == None:
+                self.root = y
+            elif x == x.parent.left:
+                x.parent.left = y
+            else:
+                x.parent.right = y
+            y.left = x
+            x.parent = y
+
+        def insert_fixup(self, k):
+            while k.parent and k.parent.color == "RED":
+                if k.parent == k.parent.parent.left:
+                    y = k.parent.parent.right
+                    if y.color == "RED":
+                        k.parent.color = "BLACK"
+                        y.color = "BLACK"
+                        k.parent.parent.color = "RED"
+                        k = k.parent.parent
+                    else:
+                        if k == k.parent.right:
+                            k = k.parent
+                            self.left_rotate(k)
+                        k.parent.color = "BLACK"
+                        k.parent.parent.color = "RED"
+                        self.right_rotate(k.parent.parent)
+                else:
+                    # Mirror image case
+                    pass
+            self.root.color = "BLACK"
+```
+
+### String Algorithm Complexities
+
+```python
+class StringAlgorithms:
+    """Complex string algorithms with detailed complexity analysis"""
+
+    # KMP Algorithm for Pattern Matching
+    # Time: O(n + m), Space: O(m)
+    def kmp_search(self, text, pattern):
+        def compute_lps(pattern):
+            m = len(pattern)
+            lps = [0] * m
+            length = 0
+            i = 1
+
+            while i < m:
+                if pattern[i] == pattern[length]:
+                    length += 1
+                    lps[i] = length
+                    i += 1
+                else:
+                    if length != 0:
+                        length = lps[length - 1]
+                    else:
+                        lps[i] = 0
+                        i += 1
+            return lps
+
+        n, m = len(text), len(pattern)
+        lps = compute_lps(pattern)
+
+        results = []
+        i = j = 0
+
+        while i < n:
+            if pattern[j] == text[i]:
+                i += 1
+                j += 1
+
+            if j == m:
+                results.append(i - j)
+                j = lps[j - 1]
+            elif i < n and pattern[j] != text[i]:
+                if j != 0:
+                    j = lps[j - 1]
+                else:
+                    i += 1
+
+        return results
+
+    # Manacher's Algorithm for Longest Palindromic Substring
+    # Time: O(n), Space: O(n)
+    def manacher_algorithm(self, s):
+        def preprocess(s):
+            return '#' + '#'.join(s) + '#'
+
+        processed = preprocess(s)
+        n = len(processed)
+        P = [0] * n
+        center = right = 0
+        maxLen = maxCenter = 0
+
+        for i in range(n):
+            if i < right:
+                mirror = 2 * center - i
+                P[i] = min(right - i, P[mirror])
+
+            # Attempt to expand palindrome centered at i
+            left = i - (1 + P[i])
+            right_ptr = i + (1 + P[i])
+
+            while left >= 0 and right_ptr < n and processed[left] == processed[right_ptr]:
+                P[i] += 1
+                left -= 1
+                right_ptr += 1
+
+            # If palindrome centered at i expands past right,
+            # adjust center based on expanded palindrome
+            if i + P[i] > right:
+                center = i
+                right = i + P[i]
+
+            if P[i] > maxLen:
+                maxLen = P[i]
+                maxCenter = i
+
+        # Extract longest palindromic substring
+        start = (maxCenter - maxLen) // 2
+        return s[start:start + maxLen]
+```
+
+### Advanced Sorting Algorithms
+
+```python
+class AdvancedSorting:
+    """Complex sorting algorithms with analysis"""
+
+    # Tim Sort Implementation
+    # Time: O(n log n), Space: O(n)
+    def tim_sort(self, arr):
+        MIN_MERGE = 32
+
+        def calc_min_run(n):
+            r = 0
+            while n >= MIN_MERGE:
+                r |= n & 1
+                n >>= 1
+            return n + r
+
+        def insertion_sort(arr, left, right):
+            for i in range(left + 1, right + 1):
+                key_item = arr[i]
+                j = i - 1
+                while j >= left and arr[j] > key_item:
+                    arr[j + 1] = arr[j]
+                    j -= 1
+                arr[j + 1] = key_item
+
+        def merge(arr, l, m, r):
+            left = arr[l:m + 1]
+            right = arr[m + 1:r + 1]
+            i = j = 0
+            k = l
+
+            while i < len(left) and j < len(right):
+                if left[i] <= right[j]:
+                    arr[k] = left[i]
+                    i += 1
+                else:
+                    arr[k] = right[j]
+                    j += 1
+                k += 1
+
+            while i < len(left):
+                arr[k] = left[i]
+                k += 1
+                i += 1
+            while j < len(right):
+                arr[k] = right[j]
+                k += 1
+                j += 1
+
+        n = len(arr)
+        min_run = calc_min_run(n)
+
+        # Create runs of minimum length
+        for start in range(0, n, min_run):
+            end = min(start + min_run - 1, n - 1)
+            insertion_sort(arr, start, end)
+
+        # Merge runs
+        size = min_run
+        while size < n:
+            for left in range(0, n, 2 * size):
+                mid = min(n - 1, left + size - 1)
+                right = min(left + 2 * size - 1, n - 1)
+                if mid < right:
+                    merge(arr, left, mid, right)
+            size *= 2
+
+        return arr
+```
+
+## Advanced Dynamic Programming
+
+### Matrix Chain Multiplication
+
+```python
+class MatrixChainMultiplication:
+    """
+    Time Complexity: O(n³)
+    Space Complexity: O(n²)
+    """
+    def matrix_chain_order(self, dimensions):
+        n = len(dimensions) - 1
+        dp = [[0] * n for _ in range(n)]
+        splits = [[0] * n for _ in range(n)]
+
+        # Initialize for length 2
+        for i in range(n):
+            dp[i][i] = 0
+
+        # Fill table
+        for length in range(2, n + 1):
+            for i in range(n - length + 1):
+                j = i + length - 1
+                dp[i][j] = float('inf')
+                for k in range(i, j):
+                    cost = (dp[i][k] + dp[k + 1][j] +
+                           dimensions[i] * dimensions[k + 1] * dimensions[j + 1])
+                    if cost < dp[i][j]:
+                        dp[i][j] = cost
+                        splits[i][j] = k
+
+        def print_optimal_parens(splits, i, j):
+            if i == j:
+                return f"A{i}"
+            else:
+                k = splits[i][j]
+                left = print_optimal_parens(splits, i, k)
+                right = print_optimal_parens(splits, k + 1, j)
+                return f"({left} × {right})"
+
+        return dp[0][n-1], print_optimal_parens(splits, 0, n-1)
+```
+
+### Advanced DP with State Compression
+
+```python
+class DPStateCompression:
+    """Examples of DP with state compression for optimization"""
+
+    def traveling_salesman(self, distances):
+        """
+        Traveling Salesman Problem using DP with bit manipulation
+        Time: O(n²2ⁿ), Space: O(n2ⁿ)
+        """
+        n = len(distances)
+        all_visited = (1 << n) - 1
+        dp = {}
+
+        def solve(pos, mask):
+            if mask == all_visited:
+                return distances[pos][0]
+
+            state = (pos, mask)
+            if state in dp:
+                return dp[state]
+
+            ans = float('inf')
+            for city in range(n):
+                if mask & (1 << city) == 0:  # if city not visited
+                    new_mask = mask | (1 << city)
+                    curr_cost = distances[pos][city] + solve(city, new_mask)
+                    ans = min(ans, curr_cost)
+
+            dp[state] = ans
+            return ans
+
+        return solve(0, 1)  # Start from city 0
+
+    def count_independent_sets(self, graph):
+        """
+        Count independent sets in a graph using DP
+        Time: O(2ⁿ), Space: O(2ⁿ)
+        """
+        n = len(graph)
+        dp = [0] * (1 << n)
+        dp[0] = 1  # Empty set is valid
+
+        def is_independent(subset):
+            for i in range(n):
+                if subset & (1 << i):
+                    for j in range(i + 1, n):
+                        if subset & (1 << j) and graph[i][j]:
+                            return False
+            return True
+
+        for mask in range(1 << n):
+            if is_independent(mask):
+                dp[mask] = 1
+                for j in range(n):
+                    if mask & (1 << j):
+                        dp[mask] += dp[mask ^ (1 << j)]
+
+        return dp[(1 << n) - 1]
+```
+
+### Advanced Tree Algorithms
+
+```python
+class AdvancedTreeAlgorithms:
+    """Complex tree algorithms with optimization techniques"""
+
+    class TreeNode:
+        def __init__(self, val=0):
+            self.val = val
+            self.left = None
+            self.right = None
+            self.parent = None
+            self.height = 1
+            self.size = 1
+
+    def lowest_common_ancestor(self, root, nodes):
+        """
+        LCA for multiple nodes using Tarjan's offline algorithm
+        Time: O(n + m*α(n)), where α is the inverse Ackermann function
+        Space: O(n)
+        """
+        from collections import defaultdict
+
+        class UnionFind:
+            def __init__(self):
+                self.parent = {}
+                self.rank = defaultdict(int)
+
+            def find(self, x):
+                if x not in self.parent:
+                    self.parent[x] = x
+                    return x
+                if self.parent[x] != x:
+                    self.parent[x] = self.find(self.parent[x])
+                return self.parent[x]
+
+            def union(self, x, y):
+                px, py = self.find(x), self.find(y)
+                if px == py:
+                    return
+                if self.rank[px] < self.rank[py]:
+                    self.parent[px] = py
+                elif self.rank[px] > self.rank[py]:
+                    self.parent[py] = px
+                else:
+                    self.parent[py] = px
+                    self.rank[px] += 1
+
+        def dfs(node, ancestors):
+            if not node:
+                return
+
+            ancestors[node] = set([node])
+
+            for child in (node.left, node.right):
+                if child:
+                    dfs(child, ancestors)
+                    ancestors[node].update(ancestors[child])
+
+            if node in nodes:
+                result = None
+                min_size = float('inf')
+
+                for ancestor in ancestors[node]:
+                    curr_size = len(ancestors[ancestor])
+                    if curr_size < min_size:
+                        min_size = curr_size
+                        result = ancestor
+
+                self.lca = result
+
+        ancestors = {}
+        dfs(root, ancestors)
+        return self.lca
+```
+
+### Advanced String Algorithms
+
+```python
+class AdvancedStringAlgorithms:
+    """Complex string manipulation algorithms"""
+
+    def suffix_array_construction(self, s):
+        """
+        Construct suffix array in O(n log n)
+        Uses counting sort for optimization
+        """
+        def counting_sort(arr, exp):
+            n = len(arr)
+            output = [0] * n
+            count = [0] * 256
+
+            for i in range(n):
+                idx = arr[i] // exp
+                count[idx % 256] += 1
+
+            for i in range(1, 256):
+                count[i] += count[i - 1]
+
+            i = n - 1
+            while i >= 0:
+                idx = arr[i] // exp
+                output[count[idx % 256] - 1] = arr[i]
+                count[idx % 256] -= 1
+                i -= 1
+
+            for i in range(n):
+                arr[i] = output[i]
+
+        n = len(s)
+        suffix_array = list(range(n))
+        rank = [ord(c) for c in s]
+        tmp = [0] * n
+        k = 1
+
+        while k < n:
+            # Sort by first k characters
+            counting_sort(suffix_array, k)
+
+            # Update ranks
+            tmp[suffix_array[0]] = 0
+            for i in range(1, n):
+                if (rank[suffix_array[i]] == rank[suffix_array[i-1]] and
+                    rank[(suffix_array[i]+k)%n] == rank[(suffix_array[i-1]+k)%n]):
+                    tmp[suffix_array[i]] = tmp[suffix_array[i-1]]
+                else:
+                    tmp[suffix_array[i]] = tmp[suffix_array[i-1]] + 1
+
+            rank = tmp[:]
+            k *= 2
+
+        return suffix_array
+```
+
+### Advanced Network Flow Algorithms
+
+```python
+class NetworkFlowAlgorithms:
+    """Advanced network flow algorithms with optimizations"""
+
+    def push_relabel(self, graph, source, sink):
+        """
+        Push-relabel algorithm for maximum flow
+        Time: O(V²E)
+        Space: O(V²)
+        """
+        def push(u, v):
+            send = min(excess[u], capacity[u][v] - flow[u][v])
+            flow[u][v] += send
+            flow[v][u] -= send
+            excess[u] -= send
+            excess[v] += send
+
+        def relabel(u):
+            min_height = float('inf')
+            for v in range(V):
+                if capacity[u][v] - flow[u][v] > 0:
+                    min_height = min(min_height, height[v])
+            height[u] = min_height + 1
+
+        V = len(graph)
+        height = [0] * V
+        excess = [0] * V
+        flow = [[0] * V for _ in range(V)]
+        capacity = [row[:] for row in graph]
+
+        # Initialize
+        height[source] = V
+        excess[source] = float('inf')
+        for v in range(V):
+            push(source, v)
+
+        # Main loop
+        pointer = [0] * V
+        while True:
+            overflow = False
+            for u in range(V):
+                if u != source and u != sink and excess[u] > 0:
+                    overflow = True
+                    while excess[u] > 0:
+                        if pointer[u] < V:
+                            v = pointer[u]
+                            if (capacity[u][v] - flow[u][v] > 0 and
+                                height[u] == height[v] + 1):
+                                push(u, v)
+                            else:
+                                pointer[u] += 1
+                        else:
+                            pointer[u] = 0
+                            relabel(u)
+                            break
+
+            if not overflow:
+                break
+
+        return sum(flow[source])
+```
+
+### Advanced Geometric Algorithms
+
+```python
+class GeometricAlgorithms:
+    """Complex geometric algorithms with optimization"""
+
+    def convex_hull_graham(self, points):
+        """
+        Graham scan algorithm for convex hull
+        Time: O(n log n)
+        Space: O(n)
+        """
+        def orientation(p, q, r):
+            val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
+            if val == 0:
+                return 0
+            return 1 if val > 0 else 2
+
+        n = len(points)
+        if n < 3:
+            return points
+
+        # Find bottommost point
+        bottom = min(points, key=lambda p: (p[1], p[0]))
+
+        # Sort points by polar angle
+        sorted_points = sorted(
+            [p for p in points if p != bottom],
+            key=lambda p: (
+                math.atan2(p[1] - bottom[1], p[0] - bottom[0]),
+                (p[0] - bottom[0])**2 + (p[1] - bottom[1])**2
+            )
+        )
+
+        # Initialize stack
+        stack = [bottom]
+
+        # Process points
+        for point in sorted_points:
+            while len(stack) > 1 and orientation(stack[-2], stack[-1], point) != 2:
+                stack.pop()
+            stack.append(point)
+
+        return stack
+```

@@ -1,0 +1,453 @@
+---
+title: 'Python DSA Cheatsheet'
+description: 'Complete cheatsheet for Python Data Structures, Algorithms, and Competitive Programming'
+---
+
+## Basic Python Tips
+
+### Input/Output for Competitive Programming
+
+Fast I/O operations are crucial for competitive programming.
+
+```python
+# Fast Input
+from sys import stdin, stdout
+input = stdin.readline    # Faster input
+print = stdout.write      # Faster output
+
+# Multiple inputs on one line
+a, b = map(int, input().split())
+
+# List input on one line
+arr = list(map(int, input().split()))
+
+# Multiple lines input
+n = int(input())
+matrix = [list(map(int, input().split())) for _ in range(n)]
+
+# Output formatting
+print(f"{answer}\n")  # Don't forget \n when using stdout.write
+```
+
+### Python One-Liners
+
+Common Python one-liners that are frequently used in coding interviews.
+
+```python
+# List comprehension
+squares = [x*x for x in range(10)]
+matrix = [[0]*m for _ in range(n)]  # n×m matrix
+
+# Conditional comprehension
+evens = [x for x in range(10) if x % 2 == 0]
+
+# Generate combinations
+from itertools import combinations
+combs = list(combinations([1,2,3], 2))  # [(1,2), (1,3), (2,3)]
+
+# Generate permutations
+from itertools import permutations
+perms = list(permutations([1,2,3]))
+
+# Flatten 2D list
+flattened = [item for sublist in matrix for item in sublist]
+
+# Count elements
+from collections import Counter
+counts = Counter([1,1,2,3,3,3])  # Counter({3:3, 1:2, 2:1})
+```
+
+## Data Structures
+
+### Lists (Arrays)
+
+Lists are the most commonly used data structure in Python.
+
+```python
+# Basic operations
+arr = []
+arr.append(x)      # Add to end: O(1)
+arr.pop()         # Remove from end: O(1)
+arr.insert(i, x)  # Insert at index i: O(n)
+arr.remove(x)     # Remove first occurrence: O(n)
+del arr[i]        # Delete at index: O(n)
+
+# Useful methods
+arr.sort()                  # In-place sort
+arr.sort(reverse=True)      # Descending sort
+arr.sort(key=lambda x: x[1]) # Sort by custom key
+sorted_arr = sorted(arr)    # Return new sorted list
+arr.reverse()              # Reverse in-place
+reversed_arr = arr[::-1]   # Return new reversed list
+
+# Slicing [start:end:step]
+arr[2:5]    # Elements from index 2 to 4
+arr[::-1]   # Reverse array
+arr[::2]    # Every second element
+```
+
+### Using Lists as Queues
+
+For efficient queue operations, use collections.deque.
+
+```python
+from collections import deque
+queue = deque([1, 2, 3])
+queue.append(4)      # Add to right
+queue.appendleft(0)  # Add to left
+queue.pop()         # Remove from right
+queue.popleft()     # Remove from left
+```
+
+### Dictionaries (Hash Maps)
+
+Dictionaries provide O(1) average case operations.
+
+```python
+# Creation
+d = {}
+d = dict()
+d = {key: value for key, value in zip(keys, values)}
+
+# Default dictionary
+from collections import defaultdict
+d = defaultdict(int)     # Default value 0
+d = defaultdict(list)    # Default value []
+d = defaultdict(set)     # Default value set()
+
+# Counter
+from collections import Counter
+c = Counter([1,1,2,3,3,3])
+c.most_common(2)  # Two most common elements
+c.update([1,2,3]) # Add more elements
+
+# Operations
+d[key] = value
+value = d.get(key, default)  # Returns default if key not found
+d.setdefault(key, default)   # Set default if key not found
+d.pop(key, default)          # Remove and return, optional default
+d.update(other_dict)         # Merge dictionaries
+
+# Iteration
+for key in d:            # Iterate keys
+for key, value in d.items(): # Iterate key-value pairs
+for value in d.values(): # Iterate values
+```
+
+### Sets
+
+Sets are useful for maintaining unique elements and set operations.
+
+```python
+# Creation
+s = set()
+s = {1, 2, 3}
+s = set([1, 2, 3])
+
+# Operations
+s.add(x)           # Add element
+s.remove(x)        # Remove element (raises KeyError if not found)
+s.discard(x)       # Remove element (no error if not found)
+s.pop()           # Remove and return arbitrary element
+
+# Set operations
+a | b             # Union
+a & b             # Intersection
+a - b             # Difference
+a ^ b             # Symmetric difference
+a <= b            # Subset
+a < b             # Proper subset
+```
+
+### Heaps (Priority Queues)
+
+Python's heapq implements a min-heap.
+
+```python
+import heapq
+
+# Min heap
+heap = []
+heapq.heappush(heap, 1)    # Add element
+min_val = heapq.heappop(heap)  # Remove and return smallest
+min_val = heap[0]          # Peek at smallest
+
+# Max heap (negate values)
+heap = []
+heapq.heappush(heap, -1)   # Add element
+max_val = -heapq.heappop(heap) # Remove and return largest
+
+# Heapify list
+arr = [3, 1, 4, 1, 5]
+heapq.heapify(arr)         # Convert to min heap in-place
+
+# k largest elements
+k_largest = heapq.nlargest(k, arr)
+# k smallest elements
+k_smallest = heapq.nsmallest(k, arr)
+```
+
+## Algorithms
+
+### Binary Search
+
+Binary search is a fundamental algorithm for searching in sorted arrays.
+
+```python
+# Basic binary search
+def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+
+# Binary search on answer (FFFTTT pattern)
+def binary_search_answer(low, high, condition):
+    while low < high:
+        mid = (low + high) // 2
+        if condition(mid):
+            high = mid
+        else:
+            low = mid + 1
+    return low
+```
+
+### Graph Algorithms
+
+Essential graph traversal and shortest path algorithms.
+
+```python
+# DFS
+def dfs(graph, start, visited=None):
+    if visited is None:
+        visited = set()
+    visited.add(start)
+    for next_node in graph[start]:
+        if next_node not in visited:
+            dfs(graph, next_node, visited)
+
+# BFS
+from collections import deque
+def bfs(graph, start):
+    visited = {start}
+    queue = deque([start])
+    while queue:
+        node = queue.popleft()
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+# Dijkstra's Algorithm
+def dijkstra(graph, start):
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    pq = [(0, start)]
+    while pq:
+        curr_dist, curr = heapq.heappop(pq)
+        if curr_dist > distances[curr]:
+            continue
+        for neighbor, weight in graph[curr].items():
+            distance = curr_dist + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(pq, (distance, neighbor))
+    return distances
+```
+
+### Dynamic Programming
+
+Dynamic programming solutions using memoization and tabulation.
+
+```python
+# Top-down (Memoization)
+def fibonacci(n, memo=None):
+    if memo is None:
+        memo = {}
+    if n in memo:
+        return memo[n]
+    if n <= 1:
+        return n
+    memo[n] = fibonacci(n-1, memo) + fibonacci(n-2, memo)
+    return memo[n]
+
+# Bottom-up (Tabulation)
+def fibonacci(n):
+    if n <= 1:
+        return n
+    dp = [0] * (n + 1)
+    dp[1] = 1
+    for i in range(2, n + 1):
+        dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]
+```
+
+## Common Patterns
+
+### Two Pointers Technique
+
+The two-pointer technique is commonly used for array and string problems.
+
+```python
+# Two pointers from ends
+def two_sum(arr, target):
+    left, right = 0, len(arr) - 1
+    while left < right:
+        curr_sum = arr[left] + arr[right]
+        if curr_sum == target:
+            return [left, right]
+        elif curr_sum < target:
+            left += 1
+        else:
+            right -= 1
+    return []
+
+# Fast and slow pointers
+def find_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            return True
+    return False
+```
+
+### Sliding Window Pattern
+
+Sliding window patterns for substring and subarray problems.
+
+```python
+# Fixed size window
+def max_sum_subarray(arr, k):
+    window_sum = sum(arr[:k])
+    max_sum = window_sum
+    for i in range(len(arr) - k):
+        window_sum = window_sum - arr[i] + arr[i + k]
+        max_sum = max(max_sum, window_sum)
+    return max_sum
+
+# Variable size window
+def longest_substring_k_distinct(s, k):
+    char_count = {}
+    max_length = start = 0
+    
+    for end, char in enumerate(s):
+        char_count[char] = char_count.get(char, 0) + 1
+        
+        while len(char_count) > k:
+            left_char = s[start]
+            char_count[left_char] -= 1
+            if char_count[left_char] == 0:
+                del char_count[left_char]
+            start += 1
+        
+        max_length = max(max_length, end - start + 1)
+    
+    return max_length
+```
+
+## Time Complexity Reference
+
+Understanding time complexity is crucial for optimizing solutions.
+
+### Common Operations
+
+```python
+# O(1): Constant Time
+dict.get(key)
+set.add(item)
+list[index]
+
+# O(log n): Logarithmic Time
+binary_search(sorted_list)
+heap operations
+
+# O(n): Linear Time
+for loop
+list.index(item)
+max(list)
+min(list)
+
+# O(n log n): Linearithmic Time
+sorted(list)
+list.sort()
+
+# O(n²): Quadratic Time
+nested for loops
+
+# O(2ⁿ): Exponential Time
+recursive fibonacci
+generating all subsets
+
+# O(n!): Factorial Time
+generating all permutations
+```
+
+## Built-in Functions and Libraries
+
+### Essential Python Functions
+
+```python
+# Math operations
+abs(-5)              # Absolute value
+pow(2, 3)           # Power
+round(3.14159, 2)    # Round to decimals
+float('inf')        # Infinity
+float('-inf')       # Negative infinity
+
+# String operations
+s.strip()           # Remove whitespace
+s.lower()           # Convert to lowercase
+s.upper()           # Convert to uppercase
+s.split(',')        # Split by delimiter
+''.join(list)       # Join list to string
+```
+
+### Common Libraries
+
+```python
+# Binary Search operations
+from bisect import bisect_left, bisect_right
+
+# Collections
+from collections import deque, defaultdict, Counter
+
+# Heap operations
+from heapq import heappush, heappop, heapify
+
+# Itertools
+from itertools import permutations, combinations
+
+# Memoization
+from functools import lru_cache  # Memoization decorator
+```
+
+## Best Practices for Interviews
+
+### Code Organization
+- Write clean, readable code
+- Use meaningful variable names
+- Add comments for complex logic
+- Break down complex problems into smaller functions
+
+### Problem-Solving Approach
+1. Understand the problem completely
+2. Work through examples
+3. Consider edge cases
+4. Start with brute force solution
+5. Optimize the solution
+6. Test your code
+
+### Common Pitfalls to Avoid
+- Off-by-one errors in array indexing
+- Not handling edge cases
+- Forgetting to handle null/None inputs
+- Not considering integer overflow
+- Modifying collections while iterating

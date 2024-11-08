@@ -1,0 +1,323 @@
+---
+title: 'Array Basic Operations'
+description: 'Understanding and implementing fundamental array operations: traversal, insertion, deletion, search, and update'
+---
+
+<Note>
+  Mastering basic array operations is crucial for coding interviews and efficient programming. These operations form the foundation for more complex algorithms and data structures.
+</Note>
+
+## Core Operations Overview
+
+<CardGroup cols={2}>
+  <Card title="Traversal">
+    Visit each element in the array sequentially
+    Time Complexity: O(n)
+  </Card>
+  <Card title="Insertion">
+    Add elements at beginning, end, or specific position
+    Time Complexity: O(n) worst case
+  </Card>
+  <Card title="Deletion">
+    Remove elements from specific positions
+    Time Complexity: O(n) worst case
+  </Card>
+  <Card title="Search">
+    Find elements in the array
+    Time Complexity: O(n) for linear search
+  </Card>
+</CardGroup>
+
+## 1. Array Traversal
+
+### Linear Traversal
+<CodeGroup>
+
+```python Python
+def traverse_array(arr):
+    """Basic array traversal"""
+    for element in arr:
+        print(element)
+        
+# Traversal with index
+def traverse_with_index(arr):
+    for i in range(len(arr)):
+        print(f"Index {i}: {arr[i]}")
+```
+
+```javascript JavaScript
+function traverseArray(arr) {
+    // Using forEach
+    arr.forEach((element, index) => {
+        console.log(`Index ${index}: ${element}`);
+    });
+    
+    // Using for...of
+    for (const element of arr) {
+        console.log(element);
+    }
+}
+```
+
+</CodeGroup>
+
+### Common Traversal Patterns
+
+<AccordionGroup>
+  <Accordion title="Forward Traversal">
+    ```python
+    def forward_traverse(arr):
+        for i in range(len(arr)):
+            process(arr[i])
+    ```
+  </Accordion>
+  
+  <Accordion title="Backward Traversal">
+    ```python
+    def backward_traverse(arr):
+        for i in range(len(arr) - 1, -1, -1):
+            process(arr[i])
+    ```
+  </Accordion>
+  
+  <Accordion title="Step Traversal">
+    ```python
+    def step_traverse(arr, step):
+        for i in range(0, len(arr), step):
+            process(arr[i])
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## 2. Array Insertion
+
+### Types of Insertion Operations
+
+<Steps>
+  1. Insert at Beginning (Most Expensive)
+  2. Insert at End (Least Expensive)
+  3. Insert at Specific Position
+</Steps>
+
+<CodeGroup>
+
+```python Python
+class ArrayInsertion:
+    def __init__(self):
+        self.arr = []
+    
+    def insert_at_beginning(self, element):
+        """Insert element at start - O(n)"""
+        self.arr.insert(0, element)
+    
+    def insert_at_end(self, element):
+        """Insert element at end - O(1) amortized"""
+        self.arr.append(element)
+    
+    def insert_at_position(self, element, position):
+        """Insert at specific position - O(n)"""
+        if 0 <= position <= len(self.arr):
+            self.arr.insert(position, element)
+        else:
+            raise IndexError("Invalid position")
+```
+
+```javascript JavaScript
+class ArrayInsertion {
+    constructor() {
+        this.arr = [];
+    }
+    
+    insertAtBeginning(element) {
+        this.arr.unshift(element);  // O(n)
+    }
+    
+    insertAtEnd(element) {
+        this.arr.push(element);     // O(1) amortized
+    }
+    
+    insertAtPosition(element, position) {
+        if (position >= 0 && position <= this.arr.length) {
+            this.arr.splice(position, 0, element);  // O(n)
+        } else {
+            throw new Error("Invalid position");
+        }
+    }
+}
+```
+
+</CodeGroup>
+
+## 3. Array Deletion
+
+### Deletion Strategies
+
+<CardGroup cols={2}>
+  <Card title="Direct Deletion">
+    Remove element and shift remaining elements
+    Time Complexity: O(n)
+  </Card>
+  <Card title="Lazy Deletion">
+    Mark element as deleted without shifting
+    Time Complexity: O(1)
+  </Card>
+</CardGroup>
+
+```python
+class ArrayDeletion:
+    def __init__(self):
+        self.arr = []
+        
+    def delete_from_beginning(self):
+        """Delete first element - O(n)"""
+        if self.arr:
+            return self.arr.pop(0)
+        raise IndexError("Array is empty")
+        
+    def delete_from_end(self):
+        """Delete last element - O(1)"""
+        if self.arr:
+            return self.arr.pop()
+        raise IndexError("Array is empty")
+        
+    def delete_from_position(self, position):
+        """Delete from specific position - O(n)"""
+        if 0 <= position < len(self.arr):
+            return self.arr.pop(position)
+        raise IndexError("Invalid position")
+```
+
+## 4. Array Search
+
+### Search Methods
+
+<AccordionGroup>
+  <Accordion title="Linear Search">
+    ```python
+    def linear_search(arr, target):
+        for i in range(len(arr)):
+            if arr[i] == target:
+                return i
+        return -1
+    ```
+  </Accordion>
+  
+  <Accordion title="Binary Search (Sorted Arrays)">
+    ```python
+    def binary_search(arr, target):
+        left, right = 0, len(arr) - 1
+        
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == target:
+                return mid
+            elif arr[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return -1
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## 5. Array Update
+
+### Update Operations
+
+```python
+class ArrayUpdate:
+    def __init__(self):
+        self.arr = []
+        
+    def update_element(self, index, value):
+        """Update element at specific index - O(1)"""
+        if 0 <= index < len(self.arr):
+            self.arr[index] = value
+        else:
+            raise IndexError("Invalid index")
+            
+    def update_all(self, value):
+        """Update all elements - O(n)"""
+        for i in range(len(self.arr)):
+            self.arr[i] = value
+```
+
+## Time Complexity Summary
+
+<Card title="Operation Complexities">
+| Operation | Average Case | Worst Case | Space Complexity |
+|-----------|--------------|------------|------------------|
+| Access    | O(1)         | O(1)       | O(1)            |
+| Insert    | O(n)         | O(n)       | O(1)            |
+| Delete    | O(n)         | O(n)       | O(1)            |
+| Search    | O(n)         | O(n)       | O(1)            |
+| Update    | O(1)         | O(1)       | O(1)            |
+</Card>
+
+## Common Techniques and Tricks
+
+### 1. Two-Pointer Technique
+```python
+def two_pointer_example(arr):
+    left, right = 0, len(arr) - 1
+    while left < right:
+        # Process elements from both ends
+        left += 1
+        right -= 1
+```
+
+### 2. Sliding Window
+```python
+def sliding_window_example(arr, k):
+    window_sum = sum(arr[:k])
+    max_sum = window_sum
+    
+    for i in range(k, len(arr)):
+        window_sum = window_sum - arr[i-k] + arr[i]
+        max_sum = max(max_sum, window_sum)
+```
+
+## Best Practices
+
+<Check>Always validate array indices before access</Check>
+<Check>Consider edge cases (empty array, single element)</Check>
+<Check>Use appropriate search method based on data</Check>
+<Check>Handle capacity issues in fixed-size arrays</Check>
+
+## Common Pitfalls
+
+<Warning>
+  **Common Mistakes to Avoid**
+  - Off-by-one errors in loops
+  - Not handling array bounds
+  - Inefficient repeated operations
+  - Memory leaks in manual memory management
+</Warning>
+
+## Practice Problems
+
+<CardGroup cols={2}>
+  <Card title="Beginner Level">
+    - Reverse an Array
+    - Find Maximum Element
+    - Remove Duplicates
+    - Array Rotation
+  </Card>
+  
+  <Card title="Intermediate Level">
+    - Merge Sorted Arrays
+    - Find Missing Number
+    - Kadane's Algorithm
+    - Dutch National Flag
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<Card title="Advanced Topics">
+  Continue your learning with:
+  - Sorting Algorithms
+  - Advanced Search Techniques
+  - Array Optimization
+  - Special Array Types
+</Card>

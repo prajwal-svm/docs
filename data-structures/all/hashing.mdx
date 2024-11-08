@@ -1,0 +1,445 @@
+## Core Implementation
+
+### Basic Hash Table
+```python
+class HashTable:
+    def __init__(self, size=1024):
+        self.size = size
+        self.table = [[] for _ in range(self.size)]  # Using chaining
+        self.num_items = 0
+    
+    def _hash(self, key):
+        # Custom hash function
+        if isinstance(key, str):
+            hash_val = 0
+            for char in key:
+                hash_val = (hash_val * 31 + ord(char)) % self.size
+            return hash_val
+        return hash(key) % self.size
+    
+    def insert(self, key, value):
+        index = self._hash(key)
+        chain = self.table[index]
+        
+        # Check if key exists and update
+        for i, (k, v) in enumerate(chain):
+            if k == key:
+                chain[i] = (key, value)
+                return
+        
+        # Insert new key-value pair
+        chain.append((key, value))
+        self.num_items += 1
+        
+        # Check load factor and resize if necessary
+        if self.num_items / self.size > 0.75:  # Load factor threshold
+            self._resize(2 * self.size)
+    
+    def get(self, key):
+        index = self._hash(key)
+        chain = self.table[index]
+        
+        for k, v in chain:
+            if k == key:
+                return v
+        raise KeyError(f"Key not found: {key}")
+    
+    def remove(self, key):
+        index = self._hash(key)
+        chain = self.table[index]
+        
+        for i, (k, v) in enumerate(chain):
+            if k == key:
+                del chain[i]
+                self.num_items -= 1
+                return
+        raise KeyError(f"Key not found: {key}")
+    
+    def _resize(self, new_size):
+        old_table = self.table
+        self.size = new_size
+        self.table = [[] for _ in range(new_size)]
+        self.num_items = 0
+        
+        for chain in old_table:
+            for key, value in chain:
+                self.insert(key, value)
+```
+
+## Implementation Variations
+
+### 1. Open Addressing with Linear Probing
+```python
+class OpenAddressingHashTable:
+    def __init__(self, size=1024):
+        self.size = size
+        self.table = [None] * size
+        self.num_items = 0
+        self.DELETED = object()  # Sentinel for deleted entries
+    
+    def _hash(self, key, i):
+        # Linear probing
+        h = hash(key) % self.size
+        return (h + i) % self.size
+    
+    def insert(self, key, value):
+        if self.num_items / self.size > 0.5:  # Lower load factor for open addressing
+            self._resize(2 * self.size)
+        
+        i = 0
+        while True:
+            index = self._hash(key, i)
+            
+            if self.table[index] is None or self.table[index] is self.DELETED:
+                self.table[index] = (key, value)
+                self.num_items += 1
+                return
+            elif self.table[index][0] == key:
+                self.table[index] = (key, value)
+                return
+            
+            i += 1
+            if i == self.size:
+                raise OverflowError("Hash table is full")
+    
+    def get(self, key):
+        i = 0
+        while True:
+            index = self._hash(key, i)
+            
+            if self.table[index] is None:
+                raise KeyError(f"Key not found: {key}")
+            elif self.table[index] is not self.DELETED and self.table[index][0] == key:
+                return self.table[index][1]
+            
+            i += 1
+            if i == self.size:
+                raise KeyError(f"Key not found: {key}")
+```
+
+### 2. Double Hashing
+```python
+class DoubleHashTable:
+    def __init__(self, size=1024):
+        self.size = size
+        self.table = [None] * size
+        self.num_items = 0
+    
+    def _hash1(self, key):
+        return hash(key) % self.size
+    
+    def _hash2(self, key):
+        # Second hash function - must be relatively prime to table size
+        return 1 + (hash(key) % (self.size - 1))
+    
+    def _get_probe_index(self, key, i):
+        h1 = self._hash1(key)
+        h2 = self._hash2(key)
+        return (h1 + i * h2) % self.size
+    
+    def insert(self, key, value):
+        if self.num_items / self.size > 0.5:
+            self._resize(2 * self.size)
+        
+        i = 0
+        while True:
+            index = self._get_probe_index(key, i)
+            
+            if self.table[index] is None:
+                self.table[index] = (key, value)
+                self.num_items += 1
+                return
+            elif self.table[index][0] == key:
+                self.table[index] = (key, value)
+                return
+            
+            i += 1
+            if i == self.size:
+                raise OverflowError("Hash table is full")
+```
+
+### 3. Cuckoo Hashing
+```python
+class CuckooHashTable:
+    def __init__(self, size=1024):
+        self.size = size
+        self.table1 = [None] * size
+        self.table2 = [None] * size
+        self.num_items = 0
+        self.MAX_RECURSION = 100
+    
+    def _hash1(self, key):
+        return hash(key) % self.size
+    
+    def _hash2(self, key):
+        return (hash(key) // self.size) % self.size
+    
+    def insert(self, key, value, recursion_depth=0):
+        if recursion_depth >= self.MAX_RECURSION:
+            self._resize(2 * self.size)
+            self.insert(key, value)
+            return
+        
+        h1 = self._hash1(key)
+        if self.table1[h1] is None:
+            self.table1[h1] = (key, value)
+            self.num_items += 1
+            return
+        
+        if self.table1[h1][0] == key:
+            self.table1[h1] = (key, value)
+            return
+        
+        # Kick out existing item and try to insert it in table2
+        old_key, old_value = self.table1[h1]
+        self.table1[h1] = (key, value)
+        
+        h2 = self._hash2(old_key)
+        if self.table2[h2] is None:
+            self.table2[h2] = (old_key, old_value)
+            return
+        
+        # Recursively kick out items
+        next_key, next_value = self.table2[h2]
+        self.table2[h2] = (old_key, old_value)
+        self.insert(next_key, next_value, recursion_depth + 1)
+```
+
+## Time Complexities
+
+| Operation     | Chaining (avg) | Linear Probing (avg) | Double Hashing (avg) | Cuckoo Hashing |
+|--------------|----------------|---------------------|-------------------|----------------|
+| Insert       | O(1)           | O(1)                | O(1)              | O(1)*          |
+| Search       | O(1)           | O(1)                | O(1)              | O(1)           |
+| Delete       | O(1)           | O(1)                | O(1)              | O(1)           |
+| Resize       | O(n)           | O(n)                | O(n)              | O(n)           |
+
+\* Amortized, worst case may require rebuild
+
+## Space Complexities
+
+| Implementation      | Space Complexity | Additional Notes                          |
+|--------------------|------------------|------------------------------------------|
+| Chaining           | O(n)            | Extra space for linked lists              |
+| Open Addressing    | O(n)            | No extra structures needed                |
+| Double Hashing     | O(n)            | Similar to open addressing                |
+| Cuckoo Hashing    | O(n)            | Uses two tables                           |
+
+## Common Data Structure Patterns
+
+1. Direct Addressing Patterns
+   - Symbol Tables
+   - Caches
+   - Memory Management
+
+2. Collision Resolution
+   - Chaining
+   - Linear Probing
+   - Quadratic Probing
+   - Double Hashing
+
+3. Load Balancing
+   - Consistent Hashing
+   - Rendezvous Hashing
+   - Jump Consistent Hashing
+
+4. Distributed Systems
+   - Partitioning
+   - Replication
+   - Sharding
+
+5. Caching Patterns
+   - LRU Cache
+   - LFU Cache
+   - Write-through/Write-back
+
+6. String Matching
+   - Rabin-Karp Algorithm
+   - Rolling Hash
+   - Substring Search
+
+## Edge Cases to Consider
+
+1. Empty Table
+```python
+if self.num_items == 0:
+    raise KeyError("Table is empty")
+```
+
+2. Full Table
+```python
+if self.num_items == self.size:
+    self._resize(2 * self.size)
+```
+
+3. Collisions
+```python
+def handle_collision(self, key, index):
+    attempts = 0
+    while attempts < self.size:
+        new_index = (index + attempts) % self.size
+        if self.table[new_index] is None:
+            return new_index
+        attempts += 1
+    raise OverflowError("No available slots")
+```
+
+## Optimization Techniques
+
+1. Load Factor Management
+```python
+def check_load_factor(self):
+    load_factor = self.num_items / self.size
+    if load_factor > 0.75:  # Threshold for chaining
+        self._resize(2 * self.size)
+    elif load_factor < 0.25:  # Optional shrinking
+        self._resize(self.size // 2)
+```
+
+2. Optimized Hash Function
+```python
+def optimized_hash(self, key):
+    if isinstance(key, str):
+        # FNV-1a hash
+        FNV_PRIME = 16777619
+        FNV_OFFSET = 2166136261
+        
+        hash_val = FNV_OFFSET
+        for char in key:
+            hash_val ^= ord(char)
+            hash_val *= FNV_PRIME
+        return hash_val % self.size
+    return hash(key) % self.size
+```
+
+3. Batch Operations
+```python
+def batch_insert(self, items):
+    # Pre-allocate space
+    required_size = self.num_items + len(items)
+    if required_size > self.size * 0.75:
+        self._resize(max(2 * self.size, required_size * 2))
+    
+    for key, value in items:
+        self.insert(key, value)
+```
+
+## Memory Management
+
+1. Size Management
+```python
+class MemoryEfficientHashTable:
+    def __init__(self, initial_size=1024):
+        self.min_size = 1024
+        self.max_size = 1024 * 1024  # Set upper bound
+        self.size = initial_size
+        self.table = [None] * self.size
+    
+    def _resize(self, new_size):
+        new_size = max(self.min_size, min(new_size, self.max_size))
+        # ... resize implementation
+```
+
+2. Memory Pool
+```python
+class HashNode:
+    __slots__ = ['key', 'value', 'next']  # Memory optimization
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+        self.next = None
+
+class NodePool:
+    def __init__(self, size=1000):
+        self.pool = [HashNode(None, None) for _ in range(size)]
+        self.available = list(range(size))
+    
+    def get_node(self, key, value):
+        if self.available:
+            idx = self.available.pop()
+            node = self.pool[idx]
+            node.key = key
+            node.value = value
+            return node
+        return HashNode(key, value)
+```
+
+## Performance Considerations
+
+1. Cache-Friendly Design
+```python
+class CacheOptimizedHashTable:
+    def __init__(self):
+        self.block_size = 64  # Cache line size
+        self.entries_per_block = self.block_size // 16  # Assuming 8-byte entries
+        self.table = [[None] * self.entries_per_block 
+                     for _ in range(self.size // self.entries_per_block)]
+```
+
+2. String Key Optimization
+```python
+class StringKeyHashTable:
+    def __init__(self):
+        self.string_pool = {}  # Intern strings
+    
+    def _get_string_id(self, string_key):
+        if string_key not in self.string_pool:
+            self.string_pool[string_key] = len(self.string_pool)
+        return self.string_pool[string_key]
+    
+    def insert(self, key, value):
+        if isinstance(key, str):
+            key = self._get_string_id(key)
+        # ... normal insert
+```
+
+## Common Pitfalls
+
+1. Poor Hash Distribution
+```python
+# Wrong
+def bad_hash(self, key):
+    return len(str(key)) % self.size  # Poor distribution
+
+# Better
+def good_hash(self, key):
+    hash_val = 5381
+    for char in str(key):
+        hash_val = ((hash_val << 5) + hash_val) + ord(char)
+    return hash_val % self.size
+```
+
+2. Incorrect Deletion
+```python
+# Wrong (in open addressing)
+def wrong_delete(self, key):
+    index = self._hash(key)
+    if self.table[index][0] == key:
+        self.table[index] = None  # Creates clusters
+
+# Correct
+def correct_delete(self, key):
+    index = self._hash(key)
+    if self.table[index][0] == key:
+        self.table[index] = self.DELETED  # Mark as deleted
+```
+
+3. Infinite Loops in Probing
+```python
+# Wrong
+def probe(self, key):
+    index = self._hash(key)
+    while self.table[index] is not None:
+        index = (index + 1) % self.size  # May loop forever
+
+# Correct
+def probe(self, key):
+    index = self._hash(key)
+    attempts = 0
+    while attempts < self.size and self.table[index] is not None:
+        index = (index + 1) % self.size
+        attempts += 1
+    if attempts == self.size:
+        raise OverflowError("Table is full")
+    return index
+```

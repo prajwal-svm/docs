@@ -1,0 +1,382 @@
+## Core Implementation
+
+### Array-based Queue (Circular)
+```python
+class CircularQueue:
+    def __init__(self, capacity=10):
+        self.capacity = capacity
+        self.queue = [None] * capacity
+        self.front = 0
+        self.rear = -1
+        self.size = 0
+    
+    def enqueue(self, item):
+        if self.is_full():
+            self._resize(2 * self.capacity)
+        self.rear = (self.rear + 1) % self.capacity
+        self.queue[self.rear] = item
+        self.size += 1
+    
+    def dequeue(self):
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        item = self.queue[self.front]
+        self.queue[self.front] = None  # Help garbage collection
+        self.front = (self.front + 1) % self.capacity
+        self.size -= 1
+        return item
+    
+    def peek(self):
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        return self.queue[self.front]
+    
+    def is_empty(self):
+        return self.size == 0
+    
+    def is_full(self):
+        return self.size == self.capacity
+    
+    def _resize(self, new_capacity):
+        new_queue = [None] * new_capacity
+        for i in range(self.size):
+            new_queue[i] = self.queue[(self.front + i) % self.capacity]
+        self.queue = new_queue
+        self.front = 0
+        self.rear = self.size - 1
+        self.capacity = new_capacity
+```
+
+### Linked List-based Queue
+```python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class LinkedQueue:
+    def __init__(self):
+        self.front = None
+        self.rear = None
+        self.size = 0
+    
+    def enqueue(self, item):
+        new_node = Node(item)
+        if self.is_empty():
+            self.front = self.rear = new_node
+        else:
+            self.rear.next = new_node
+            self.rear = new_node
+        self.size += 1
+    
+    def dequeue(self):
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        item = self.front.data
+        self.front = self.front.next
+        if self.front is None:
+            self.rear = None
+        self.size -= 1
+        return item
+    
+    def peek(self):
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        return self.front.data
+    
+    def is_empty(self):
+        return self.front is None
+```
+
+## Implementation Variations
+
+### 1. Priority Queue
+```python
+import heapq
+
+class PriorityQueue:
+    def __init__(self):
+        self.queue = []
+        self.index = 0  # For same-priority stability
+    
+    def enqueue(self, item, priority):
+        heapq.heappush(self.queue, (priority, self.index, item))
+        self.index += 1
+    
+    def dequeue(self):
+        if self.is_empty():
+            raise IndexError("Queue is empty")
+        return heapq.heappop(self.queue)[2]
+    
+    def is_empty(self):
+        return len(self.queue) == 0
+```
+
+### 2. Double-ended Queue (Deque)
+```python
+class Deque:
+    def __init__(self):
+        self.items = []
+    
+    def add_front(self, item):
+        self.items.insert(0, item)
+    
+    def add_rear(self, item):
+        self.items.append(item)
+    
+    def remove_front(self):
+        if not self.is_empty():
+            return self.items.pop(0)
+        raise IndexError("Deque is empty")
+    
+    def remove_rear(self):
+        if not self.is_empty():
+            return self.items.pop()
+        raise IndexError("Deque is empty")
+    
+    def is_empty(self):
+        return len(self.items) == 0
+```
+
+## Time Complexities
+
+| Operation       | Circular Queue | Linked Queue | Priority Queue | Deque    |
+|----------------|---------------|--------------|----------------|----------|
+| Enqueue        | O(1)*         | O(1)         | O(log n)       | O(1)     |
+| Dequeue        | O(1)          | O(1)         | O(log n)       | O(1)     |
+| Peek           | O(1)          | O(1)         | O(1)           | O(1)     |
+| Insert Front   | N/A           | N/A          | N/A            | O(1)     |
+| Remove Rear    | N/A           | N/A          | N/A            | O(1)     |
+| Is Empty       | O(1)          | O(1)         | O(1)           | O(1)     |
+
+\* Amortized when resizing is needed
+
+## Space Complexities
+
+| Implementation    | Space Complexity | Additional Notes                          |
+|------------------|------------------|------------------------------------------|
+| Circular Queue   | O(n)            | Contiguous memory, may have unused space |
+| Linked Queue     | O(n)            | Extra space for node pointers           |
+| Priority Queue   | O(n)            | Heap-based implementation               |
+| Deque           | O(n)            | Dynamic array or linked list based      |
+
+## Common Data Structure Patterns
+
+1. Breadth-First Search
+   - Level order traversal
+   - Shortest path
+   - Graph traversal
+
+2. Buffer Management
+   - Producer-consumer
+   - Task scheduling
+   - Stream processing
+
+3. Sliding Window
+   - Maximum in sliding window
+   - Moving average
+   - Recent counter
+
+4. Round Robin
+   - Process scheduling
+   - Load balancing
+   - Time sharing
+
+5. Event Processing
+   - Message queues
+   - Event handling
+   - Async operations
+
+6. Cache Implementation
+   - LRU cache
+   - Page replacement
+   - Request handling
+
+## Edge Cases to Consider
+
+1. Empty Queue
+```python
+def dequeue(self):
+    if self.is_empty():
+        raise IndexError("Queue underflow")
+    # ... dequeue implementation
+```
+
+2. Single Element
+```python
+def dequeue(self):
+    if self.front == self.rear:
+        item = self.queue[self.front]
+        self.front = self.rear = -1
+        return item
+```
+
+3. Full Queue (Circular)
+```python
+def enqueue(self, item):
+    if (self.rear + 1) % self.capacity == self.front:
+        # Queue is full
+        self._resize(2 * self.capacity)
+```
+
+## Optimization Techniques
+
+1. Batch Processing
+```python
+class BatchQueue:
+    def __init__(self, batch_size=1000):
+        self.queue = []
+        self.batch_size = batch_size
+    
+    def enqueue_batch(self, items):
+        if len(items) > self.batch_size:
+            # Process in chunks
+            for i in range(0, len(items), self.batch_size):
+                chunk = items[i:i + self.batch_size]
+                self.queue.extend(chunk)
+        else:
+            self.queue.extend(items)
+```
+
+2. Memory Pool
+```python
+class QueueNodePool:
+    def __init__(self, pool_size=1000):
+        self.pool = [Node(None) for _ in range(pool_size)]
+        self.available = set(range(pool_size))
+    
+    def get_node(self, data):
+        if self.available:
+            idx = self.available.pop()
+            node = self.pool[idx]
+            node.data = data
+            return node
+        return Node(data)
+```
+
+## Memory Management
+
+1. Smart Resizing
+```python
+class SmartQueue:
+    def _resize(self, new_capacity):
+        if new_capacity < self.min_capacity:
+            return False
+        
+        if self.size < new_capacity // 4:
+            # Shrink queue if it's too empty
+            new_capacity = max(new_capacity // 2, self.min_capacity)
+        
+        new_queue = [None] * new_capacity
+        for i in range(self.size):
+            new_queue[i] = self.queue[(self.front + i) % self.capacity]
+        
+        self.queue = new_queue
+        self.capacity = new_capacity
+        self.front = 0
+        self.rear = self.size - 1
+        return True
+```
+
+2. Reference Cleanup
+```python
+def clear(self):
+    while not self.is_empty():
+        self.dequeue()  # Properly remove references
+    self.front = self.rear = None
+```
+
+## Performance Considerations
+
+1. Cache-Friendly Implementation
+```python
+class CacheOptimizedQueue:
+    def __init__(self):
+        self.block_size = 64  # Typical cache line size
+        self.queue = bytearray(self.block_size * 16)
+        self.front = 0
+        self.rear = 0
+```
+
+2. Lock-Free Queue (Thread-Safe)
+```python
+from threading import Lock
+
+class ThreadSafeQueue:
+    def __init__(self):
+        self.queue = []
+        self.lock = Lock()
+    
+    def enqueue(self, item):
+        with self.lock:
+            self.queue.append(item)
+    
+    def dequeue(self):
+        with self.lock:
+            if not self.queue:
+                raise IndexError("Queue is empty")
+            return self.queue.pop(0)
+```
+
+## Common Pitfalls
+
+1. Incorrect Full Queue Detection
+```python
+# Wrong
+def is_full(self):
+    return self.rear == self.capacity - 1
+
+# Correct (Circular Queue)
+def is_full(self):
+    return (self.rear + 1) % self.capacity == self.front
+```
+
+2. Memory Leak in Object Queue
+```python
+# Memory leak
+def dequeue(self):
+    item = self.queue[self.front]
+    self.front += 1
+    return item
+
+# Correct
+def dequeue(self):
+    item = self.queue[self.front]
+    self.queue[self.front] = None  # Clear reference
+    self.front = (self.front + 1) % self.capacity
+    return item
+```
+
+3. Lost References in Linked Queue
+```python
+# Wrong
+def dequeue(self):
+    item = self.front.data
+    self.front = self.front.next
+    return item
+
+# Correct
+def dequeue(self):
+    item = self.front.data
+    old_front = self.front
+    self.front = self.front.next
+    old_front.next = None  # Clear reference
+    if self.front is None:
+        self.rear = None
+    return item
+```
+
+4. Incorrect Size Management
+```python
+# Wrong
+def enqueue(self, item):
+    self.rear = (self.rear + 1) % self.capacity
+    self.queue[self.rear] = item
+    # Missing size increment
+
+# Correct
+def enqueue(self, item):
+    self.rear = (self.rear + 1) % self.capacity
+    self.queue[self.rear] = item
+    self.size += 1
+```
